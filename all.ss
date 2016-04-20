@@ -277,7 +277,7 @@
            [lit-exp (datum) datum]
            [form-exp (datum) (2nd datum)]
            [var-exp (id)
-                    (apply-env init-env id; look up its value.
+                    (apply-env env id; look up its value.
                                (lambda (x) x) ; procedure to call if id is in the environment 
                                (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
                                                       "variable not found in environment: ~s"
@@ -288,8 +288,8 @@
                                                     env)])
                       (eval-bodies bodies extended-env))]
            [app-exp (rator rands)
-                    (let ([proc-value (eval-exp rator)]
-                          [args (eval-rands rands)])
+                    (let ([proc-value (eval-exp rator env)]
+                          [args (eval-rands rands env)])
                       (apply-proc proc-value args))]
            [if-then-else-exp (test-exp then-exp else-exp)
                              (if (eval-exp test-exp env)
@@ -318,19 +318,28 @@
 
 
                                         ;  Apply a procedure to its arguments.
-                                        ;  At this point, we only have primitive procedures.  
+                                        ;  At this point, we only have primitive procedures.
                                         ;  User-defined procedures will be added later.
 
 (define apply-proc
   (lambda (proc-value args)
     (cases proc-val proc-value
            [prim-proc (op) (apply-prim-proc op args)]
+           [closure (params bodies env)
+                    (let ([extended-env (extend-env params
+                                                    args
+                                                    env)])
+                      (eval-bodies bodies extended-env))]
                                         ; You will add other cases
            [else (eopl:error 'apply-proc
-                             "Attempt to apply bad procedure: ~s" 
+                             "Attempt to apply bad procedure: ~s"
                              proc-value)])))
 
-(define *prim-proc-names* '(+ - * add1 sub1 cons =))
+(define *prim-proc-names* '(+ - * / add1 sub1 zero? not = cons car cdr list
+                              null? assq eq? equal? atom? length list->vector
+                              list? pair? procedure? vector->list vector make-vector
+                              vector-ref vector? number? symbol? set-car! set-cdr!
+                              vector-set! display newline))
 
 (define init-env         ; for now, our initial global environment only contains 
   (extend-env            ; procedure names.  Recall that an environment associates
@@ -342,17 +351,33 @@
                                         ; Usually an interpreter must define each 
                                         ; built-in procedure individually.  We are "cheating" a little bit.
 
+(define-syntax try
+  (syntax-rules ()
+    [(_ procName proc)
+     (with-exception-handler
+      (lambda (x)
+        (eopl:error procName "Incorrect Arguments"))
+      (lambda () proc))]))
+
+;;; prim-proc: symbols, args: scheme-values
 (define apply-prim-proc
   (lambda (prim-proc args)
     (case prim-proc
-      [(+) (+ (1st args) (2nd args))]
-      [(-) (- (1st args) (2nd args))]
-      [(*) (* (1st args) (2nd args))]
+      [(+) (try '+ (apply + args))]
+      [(-) (apply - args)]
+      [(*) (apply * args)]
+      [(/) (/ (1st args) (2nd args))]
+      [(not) (not (1st args))]
       [(add1) (+ (1st args) 1)]
       [(sub1) (- (1st args) 1)]
+      [(zero?) (equal? 0 (1st args))]
       [(cons) (cons (1st args) (2nd args))]
       [(=) (= (1st args) (2nd args))]
-      [else (error 'apply-prim-proc 
+      [(<) (< (1st args) (2nd args))]
+      [(>) (> (1st args) (2nd args))]
+      [(<=) (<= (1st args) (2nd args))]
+      [(>=) (>= (1st args) (2nd args))]
+      [else (eopl:error 'apply-prim-proc 
                    "Bad primitive procedure name: ~s" 
                    prim-proc)])))
 
@@ -367,12 +392,3 @@
 
 (define eval-one-exp
   (lambda (x) (top-level-eval (parse-exp x))))
-
-
-
-
-
-
-
-
-
