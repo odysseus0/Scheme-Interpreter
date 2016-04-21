@@ -335,11 +335,13 @@
                              "Attempt to apply bad procedure: ~s"
                              proc-value)])))
 
-(define *prim-proc-names* '(+ - * / add1 sub1 zero? not = cons car cdr list
-                              null? assq eq? equal? atom? length list->vector
-                              list? pair? procedure? vector->list vector make-vector
-                              vector-ref vector? number? symbol? set-car! set-cdr!
-                              vector-set! display newline))
+(define *prim-proc-names*
+  '(+ - * / add1 sub1 zero? not = < > <= >= cons car cdr
+    caar cadr cdar cddr caaar caadr cadar cdaar caddr cdadr
+    cddar cdddr list null? assq eq? equal? atom? length
+    list->vector list? pair? procedure? vector->list
+    vector make-vector vector-ref vector? number? symbol?
+    set-car! set-cdr! vector-set! display newline procedure?))
 
 (define init-env         ; for now, our initial global environment only contains 
   (extend-env            ; procedure names.  Recall that an environment associates
@@ -377,7 +379,58 @@
       [(>) (> (1st args) (2nd args))]
       [(<=) (<= (1st args) (2nd args))]
       [(>=) (>= (1st args) (2nd args))]
-      [else (eopl:error 'apply-prim-proc 
+      [(car) (car (1st  args))]
+      [(cdr) (cdr (1st args))]
+      [(caar) (caar (1st args))]
+      [(cadr) (cadr (1st args))]
+      [(cdar) (cdar (1st args))]
+      [(cddr) (cddr (1st args))]
+      [(caaar) (caaar (1st args))]
+      [(caadr) (caadr (1st args))]
+      [(cadar) (cadar (1st args))]
+      [(cdaar) (cdaar (1st args))]
+      [(caddr) (caddr (1st args))]
+      [(cdadr) (cdadr (1st args))]
+      [(cddar) (cddar (1st args))]
+      [(cdddr) (cdddr (1st args))]
+      [(list) (apply list args)]
+      [(null?) (null? (1st args))]
+      ; (assq obj alist)
+      [(assq) (assq (1st args) (2nd args))]
+      [(eq?) (eq? (1st args) (2nd args))]
+      [(equal?) (equal? (1st args) (2nd args))]
+      [(atom?) (atom? (1st args))]
+      [(length) (length (1st args))]
+      [(list->vector) (list->vector (1st args))]
+      [(list?) (list? (1st args))]
+      [(pair?) (pair? (1st args))]
+      [(procedure?) (proc-val? (1st args))]
+      [(vector->list) (vector->list (1st args))]
+      [(vector) (apply vector args)]
+      ; (make-vector n)
+      ; (make-vector n obj)
+      [(make-vector) (cond [(= (length args) 1) (make-vector (1st args))]
+                           [else (make-vector (1st args) (2nd args))])]
+      ; (vector-ref vector n)
+      [(vector-ref) (vector-ref (1st args) (2nd args))]
+      [(vector?) (vector? (1st args))]
+      [(number?) (number? (1st args))]
+      [(symbol?) (symbol? (1st args))]
+      ; (set-car! pair obj)
+      [(set-car!) (set-car! (1st args) (2nd args))]
+      ; (set-cdr! pair obj)
+      [(set-cdr!) (set-cdr! (1st args) (2nd args))]
+      ; (vector-set! vector n obj)
+      [(vector-set!) (vector-set! (1st args) (2nd args) (3rd args))]
+      ; (display obj)
+      ; (display obj textual-output-port)
+      [(display) (cond [(= (length args) 1) (display (1st args))]
+                       [else (display (1st args) (2nd args))])]
+      ; (newline)
+      ; (newline textual-output-port)
+      [(newline) (cond [(= (length args) 1) (newline (1st args))]
+                       [else (newline)])]
+      [else (eopl:error 'apply-prim-proc
                    "Bad primitive procedure name: ~s" 
                    prim-proc)])))
 
