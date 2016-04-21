@@ -6,17 +6,6 @@
 (define 2nd cadr)
 (define 3rd caddr)
 
-(define improper-list?
-  (lambda (datum)
-    (and (pair? datum)
-         (not (list? datum)))))
-
-(define improper-symbol-list->proper
-  (lambda (impLst)
-    (if (symbol? impLst)
-        (list impLst)
-        (cons (car impLst) (improper->proper (cdr impLst))))))
-
 (define parse-exp
 	(lambda (datum)
 		(cond
@@ -28,15 +17,17 @@
 			 [(eqv? (1st datum) 'lambda)
 				(let ([body (cddr datum)]
 							[formals (2nd datum)])
-					(cond ([null? body] (eopl:error 'parse-exp "lambda expression missing body"))
-                ([symbol? formals] (lambda-exp-variable (list formals) (map parse-exp (cddr datum))))
-                ([list? formals]
-                 (if (andmap symbol? formals)
-                     (lambda-exp formals (map parse-exp (cddr datum)))
-                     (eopl:error 'parse-exp "lambda argument list: formals must be symbols: ~s" formals)))
-                ([improper-list? formals]
-                 (let ([formals (improper-symbol-list->proper formals)])
-                 (lambda-exp-improper formals (map parse-exp (cddr datum)))))))]
+					(cond ([null? body]
+								 (eopl:error 'parse-exp "lambda expression missing body"))
+								([list? formals]
+								 (if (andmap symbol? formals)
+										 (lambda-exp (2nd datum)
+																 (map parse-exp (cddr datum)))
+										 (eopl:error 'parse-exp
+																 "lambda argument list: formals must be symbols: ~s" formals)))
+								([symbol? formals]
+								 (lambda-exp-variable (2nd datum)
+																			(map parse-exp (cddr datum))))))]
 
 			 [(eqv? (1st datum) 'if)
 				(cond ([= (length datum) 3]

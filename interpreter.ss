@@ -10,8 +10,6 @@
 		(eval-exp form init-env)))
 
 ; The eval-exp is the main component of the interpreter
-;;; @param exp: expression dataype; env: envirionment datatype
-;;; @return scheme-value, prim-proc
 
 (define eval-exp
 	(lambda (exp env)
@@ -39,10 +37,6 @@
 																 (eval-exp else-exp env))]
 					 [lambda-exp (params bodies)
 											 (closure params bodies env)]
-           [lambda-exp-variable (formals bodies)
-                                (closure-lambda-var formals bodies env)]
-           [lambda-exp-improper (formals bodies)
-                                (closure-lambda-improper formals bodies env)]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
@@ -64,8 +58,6 @@
 
 ;  Apply a procedure to its arguments.
 
-;;; proc-val: proc-value datatype
-;;; @return scheme-value
 (define apply-proc
 	(lambda (proc-value args)
 		(cases proc-val proc-value
@@ -75,14 +67,6 @@
 																										args
 																										env)])
 											(eval-bodies bodies extended-env))]
-           [closure-lambda-var (formals bodies env)
-                               (let ([extended-env (extend-env formals
-                                                               (list args)
-                                                               env)])
-                                 (eval-bodies bodies extended-env))]
-           [closure-lambda-improper (formals bodies env)
-                                    (let [extended-env (extend-env formals)])]
-
 		       ; You will add other cases
 					 [else (eopl:error 'apply-proc
 														 "Attempt to apply bad procedure: ~s"
@@ -94,7 +78,7 @@
 		cddar cdddr list null? assq eq? equal? atom? length
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
-		set-car! set-cdr! vector-set! display newline procedure? apply map))
+		set-car! set-cdr! vector-set! display newline procedure?))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -148,8 +132,6 @@
 			[(cdddr) (cdddr (1st args))]
 			[(list) (apply list args)]
 			[(null?) (null? (1st args))]
-      [(apply) (apply (lambda x (apply-proc (1st args) x)) (2nd args))]
-      [(map) (map (lambda (x) (apply-proc (1st args) (list x))) (2nd args))]
 			; (assq obj alist)
 			[(assq) (assq (1st args) (2nd args))]
 			[(eq?) (eq? (1st args) (2nd args))]
