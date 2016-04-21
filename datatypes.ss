@@ -20,8 +20,9 @@
 	[lit-exp (id lit?)]
 	[form-exp (form form?)]
 	[var-exp (id symbol?)]
-	[lambda-exp (formals (list-of symbol?)) (body (list-of expression?))]
-	[lambda-exp-variable (formal symbol?) (body (list-of expression?))]
+	[lambda-exp (formals (list-of symbol?)) (bodies (list-of expression?))]
+	[lambda-exp-variable (formals (list-of symbol?)) (bodies (list-of expression?))]
+  [lambda-exp-improper (formals (list-of symbol?)) (bodies (list-of expression?))]
 	[if-then-exp (pred expression?) (then-exp expression?)]
 	[if-then-else-exp (pred expression?) (then-exp expression?) (else-exp expression?)]
 	[let-exp (vars (list-of symbol?))
@@ -54,5 +55,11 @@
 	[prim-proc (name symbol?)]
 	[closure (params (list-of symbol?))
 					 (bodies (list-of expression?))
-					 (env environment?)])
+					 (env environment?)]
+  [closure-lambda-var (param (list-of symbol?))
+                      (bodies (list-of expression?))
+                      (env environment?)]
+  [closure-lambda-improper (params (list-of symbol?))
+                           (bodies (list-of expression?))
+                           (env environment?)])
 
