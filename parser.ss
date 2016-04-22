@@ -11,11 +11,11 @@
     (and (pair? datum)
          (not (list? datum)))))
 
-(define improper-symbol-list->proper
+(define improper-list->proper
   (lambda (impLst)
     (if (symbol? impLst)
         (list impLst)
-        (cons (car impLst) (improper->proper (cdr impLst))))))
+        (cons (car impLst) (improper-list->proper (cdr impLst))))))
 
 (define parse-exp
 	(lambda (datum)
@@ -35,7 +35,7 @@
                      (lambda-exp formals (map parse-exp (cddr datum)))
                      (eopl:error 'parse-exp "lambda argument list: formals must be symbols: ~s" formals)))
                 ([improper-list? formals]
-                 (let ([formals (improper-symbol-list->proper formals)])
+                 (let ([formals (improper-list->proper formals)])
                  (lambda-exp-improper formals (map parse-exp (cddr datum)))))))]
 
 			 [(eqv? (1st datum) 'if)

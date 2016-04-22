@@ -64,6 +64,13 @@
 
 ;  Apply a procedure to its arguments.
 
+;;; Helper procedure that will allow extend-env bind varialbes in the correct fashion for
+;;; closure-lambda-improper
+(define (imp-helper formals args)
+  (if (null? (cdr formals))
+      (list args)
+      (cons (car args) (imp-process (cdr formals) (cdr args)))))
+
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
@@ -81,7 +88,10 @@
                                                                env)])
                                  (eval-bodies bodies extended-env))]
            [closure-lambda-improper (formals bodies env)
-                                    (let [extended-env (extend-env formals)])]
+                                    (let ([extended-env (extend-env formals
+                                                                   (imp-helper formals args)
+                                                                   env)])
+                                      (eval-bodies bodies extended-env))]
 
 		       ; You will add other cases
 					 [else (eopl:error 'apply-proc
