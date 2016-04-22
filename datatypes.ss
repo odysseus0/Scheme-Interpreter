@@ -35,6 +35,11 @@
 							(exps (list-of expression?))
 							(bodies (list-of expression?))]
 	[set-exp (var symbol?) (body expression?)]
+  [and-exp (first expression?) (rest (list-of expression?))]
+  [or-exp (first expression?) (rest (list-of expression?))]
+  [cond-exp (tests (list-of expression?)) (exps (list-of expression?))]
+  [case-exp (exp expression?) (cases (list-of expression?)) (exps (list-of expression?))]
+  [begin-exp (first expression?) (rest (list-of expression?))]
 	[app-exp (rator expression?) (rand (list-of expression?))])
 
 
