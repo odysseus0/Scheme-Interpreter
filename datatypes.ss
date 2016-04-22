@@ -27,15 +27,16 @@
 	[if-then-else-exp (pred expression?) (then-exp expression?) (else-exp expression?)]
 	[let-exp (vars (list-of symbol?))
 					 (exps (list-of expression?))
-					 (bodys (list-of expression?))]
+					 (bodies (list-of expression?))]
 	[let*-exp (vars (list-of symbol?))
 						(exps (list-of expression?))
-						(bodys (list-of expression?))]
+						(bodies (list-of expression?))]
 	[letrec-exp (vars (list-of symbol?))
 							(exps (list-of expression?))
-							(bodys (list-of expression?))]
+							(bodies (list-of expression?))]
 	[set-exp (var symbol?) (body expression?)]
 	[app-exp (rator expression?) (rand (list-of expression?))])
+
 
 ; Environment type definitions
 

@@ -206,9 +206,19 @@
 
 (define syntax-expand
   (lambda (exp)
-    (cases exp expression
-        )
-    ))
+    (cases expression exp
+           [let-exp (vars exps bodies)
+                    (let ([bodies (syntax-expand bodies)]
+                          [exps (syntax-expand exps)])
+                      (app-exp (lambda-exp vars bodies)) exps)]
+           [let*-exp (vars exps bodies)
+                     (let ([bodies (syntax-expand bodies)]
+                           [exps (syntax-expand exps)])
+                       (if (null? vars)
+                           bodies
+                       (syntax-expand (let-exp (list (car vars)) (list (car exps))
+                                               (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies))))))]
+           [else exp])))
 
 (define rep ; "read-eval-print" loop.
 	(lambda ()
