@@ -37,6 +37,9 @@
 														 (if (eval-exp test-exp env)
 																 (eval-exp then-exp env)
 																 (eval-exp else-exp env))]
+           [if-then-exp (test-exp then-exp)
+                        (if (eval-exp test-exp env)
+                            (eval-exp then-exp env))]
 					 [lambda-exp (params bodies)
 											 (closure params bodies env)]
            [lambda-exp-variable (formals bodies)
@@ -69,7 +72,7 @@
 (define (imp-helper formals args)
   (if (null? (cdr formals))
       (list args)
-      (cons (car args) (imp-process (cdr formals) (cdr args)))))
+      (cons (car args) (imp-helper (cdr formals) (cdr args)))))
 
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
@@ -93,7 +96,7 @@
                                                                    env)])
                                       (eval-bodies bodies extended-env))]
 
-		       ; You will add other cases
+                                        ; You will add other cases
 					 [else (eopl:error 'apply-proc
 														 "Attempt to apply bad procedure: ~s"
 														 proc-value)])))
@@ -158,8 +161,8 @@
 			[(cdddr) (cdddr (1st args))]
 			[(list) (apply list args)]
 			[(null?) (null? (1st args))]
-      [(apply) (apply (lambda x (apply-proc (1st args) x)) (2nd args))]
-      [(map) (map (lambda (x) (apply-proc (1st args) (list x))) (2nd args))]
+      [(apply) (apply (lambda x (apply-proc (1st args) x)) (2nd args))] ;;; apply-proc requires its args to be a list
+      [(map) (map (lambda x (apply-proc (1st args) x)) (2nd args))]
 			; (assq obj alist)
 			[(assq) (assq (1st args) (2nd args))]
 			[(eq?) (eq? (1st args) (2nd args))]
@@ -198,6 +201,14 @@
 			[else (eopl:error 'apply-prim-proc
 									 "Bad primitive procedure name: ~s" 
 									 prim-proc)])))
+
+;;; Syntax Expansion on the abstract syntax tree
+
+(define syntax-expand
+  (lambda (exp)
+    (cases exp expression
+        )
+    ))
 
 (define rep ; "read-eval-print" loop.
 	(lambda ()
