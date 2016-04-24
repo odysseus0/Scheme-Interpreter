@@ -208,12 +208,12 @@
   (lambda (exp)
     (cases expression exp
            [let-exp (vars exps bodies)
-                    (let ([bodies (syntax-expand bodies)]
-                          [exps (syntax-expand exps)])
-                      (app-exp (lambda-exp vars bodies)) exps)]
+                    (let ([bodies (map syntax-expand bodies)]
+                          [exps (map syntax-expand exps)])
+                      (app-exp (lambda-exp vars bodies) exps))]
            [let*-exp (vars exps bodies)
-                     (let ([bodies (syntax-expand bodies)]
-                           [exps (syntax-expand exps)])
+                     (let ([bodies (map syntax-expand bodies)]
+                           [exps (map syntax-expand exps)])
                        (if (null? vars)
                            bodies
                        (syntax-expand (let-exp (list (car vars)) (list (car exps))

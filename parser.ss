@@ -115,3 +115,33 @@
 												"application ~s is not a proper list" datum))])]
 		 [else (eopl:error 'parse-exp "bad expression: ~s" datum)])))
 
+
+;;; Unparser for debugging purpose
+(define unparse-exp
+  (lambda (exp)
+    (cases expression exp
+           [var-exp (id) id]
+           [lit-exp (id) id]
+           [form-exp (form) (quote form)]
+           [lambda-exp (formals body)
+                       `( lambda ,formals
+                          ,@(map unparse-exp body))]
+           [lambda-exp-variable (formal body)
+                                `( lambda ,formal
+                                   ,@(map unparse-exp body))]
+           [if-then-exp (pred then-exp)
+                        `( if ,(unparse-exp pred) ,(unparse-exp then-exp))]
+           [if-then-else-exp (pred then-exp else-exp)
+                   `( if ,(unparse-exp pred) ,(unparse-exp then-exp) ,(unparse-exp else-exp))]
+           [let-exp (vars exps body)
+                    `( let ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
+           [let*-exp (vars exps body)
+                     `( let* ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
+           [letrec-exp (vars exps body)
+                       `( letrec ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
+           [set-exp (var body)
+                    `( set! ,var ,(unparse-exp body))]
+           [app-exp (rator rand)
+                    `( ,(unparse-exp rator) ,@(map unparse-exp rand))])))
+
+
