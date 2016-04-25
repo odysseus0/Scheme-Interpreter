@@ -235,7 +235,7 @@
                      (cond [(null? exps) (lit-exp #f)]
                            [(null? (cdr exps)) (car exps)]
                            [else
-                            (let-exp (list (lit-exp #t))
+                            (let-exp (list 't)
                                      (list (car exps))
                                      (list (if-then-else-exp (car exps) (car exps)
                                                              (syntax-expand (or-exp (cdr exps))))))]))]
