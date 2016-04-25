@@ -259,11 +259,11 @@
 	(lambda ()
 		(display "--> ")
 		; notice that we don't save changes to the environment...
-		(let ([answer (top-level-eval (parse-exp (read)))])
+		(let ([answer (top-level-eval (syntax-expand (parse-exp (read))))])
 			; TODO: are there answers that should display differently?
 			(eopl:pretty-print answer) (newline)
 			(rep)))) ; tail-recursive, so stack doesn't grow.
 
 (define eval-one-exp
-	(lambda (x) (top-level-eval (parse-exp x))))
+	(lambda (x) (top-level-eval (syntax-expand (parse-exp x)))))
 
