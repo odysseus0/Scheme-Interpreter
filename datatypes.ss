@@ -14,6 +14,11 @@
 (define (2-pair? lst)
 	(equal? (length lst) 2))
 
+(define (clause? datum)
+  (and (or (expression? (1st datum))
+           (eqv? (1st datum) 'else))
+       ((list-of expression?) (2nd datum))))
+
 ; Parsed expression datatypes
 
 (define-datatype expression expression?
@@ -35,11 +40,11 @@
 							(exps (list-of expression?))
 							(bodies (list-of expression?))]
 	[set-exp (var symbol?) (body expression?)]
-  [and-exp (first expression?) (rest (list-of expression?))]
-  [or-exp (first expression?) (rest (list-of expression?))]
-  [cond-exp (tests (list-of expression?)) (exps (list-of expression?))]
-  [case-exp (exp expression?) (cases (list-of expression?)) (exps (list-of expression?))]
-  [begin-exp (first expression?) (rest (list-of expression?))]
+  [and-exp (bodies (list-of expression?))]
+  [or-exp (bodies (list-of expression?))]
+  [cond-exp (clauses (list-of clause?))]
+  [case-exp (expr expression?) (clauses (list-of clause?))]
+  [begin-exp (bodies (list-of expression?))]
 	[app-exp (rator expression?) (rand (list-of expression?))])
 
 
