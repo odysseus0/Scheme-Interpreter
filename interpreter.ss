@@ -107,7 +107,7 @@
 		cddar cdddr list null? assq eq? equal? atom? length
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
-		set-car! set-cdr! vector-set! display newline procedure? apply map))
+		set-car! set-cdr! vector-set! display newline procedure? apply map memv))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -165,6 +165,7 @@
       [(map) (map (lambda x (apply-proc (1st args) x)) (2nd args))]
 			; (assq obj alist)
 			[(assq) (assq (1st args) (2nd args))]
+      [(memv) (memv (1st args) (2nd args))]
 			[(eq?) (eq? (1st args) (2nd args))]
 			[(equal?) (equal? (1st args) (2nd args))]
 			[(atom?) (atom? (1st args))]
@@ -175,6 +176,7 @@
 			[(procedure?) (proc-val? (1st args))]
 			[(vector->list) (vector->list (1st args))]
 			[(vector) (apply vector args)]
+
 			; (make-vector n)
 			; (make-vector n obj)
 			[(make-vector) (cond [(= (length args) 1) (make-vector (1st args))]
@@ -250,6 +252,20 @@
                                (if-then-exp test
                                             (app-exp (syntax-expand (begin-exp exps)) (list))))
                            (if-then-else-exp test
+                                             (app-exp (syntax-expand (begin-exp exps)) (list))
+                                             (syntax-expand (cond-exp rest-clauses)))))]
+
+           [case-exp (expr clauses)
+                     (let ([expr (syntax-expand expr)]
+                           [keys (syntax-expand (1st (1st clauses)))]
+                           [exps (map syntax-expand (2nd (1st clauses)))]
+                           [rest-clauses (cdr clauses)])
+                       (if (null? rest-clauses)
+                           (if (equal? test (var-exp 'else))
+                               (app-exp (syntax-expand (begin-exp exps)) (list))
+                               (if-then-exp (app-exp (parse-exp 'memv) expr keys)
+                                            (app-exp (syntax-expand (begin-exp exps)) (list))))
+                           (if-then-else-exp (app-exp (parse-exp 'memv) expr keys)
                                              (app-exp (syntax-expand (begin-exp exps)) (list))
                                              (syntax-expand (cond-exp rest-clauses)))))]
 

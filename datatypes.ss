@@ -5,7 +5,8 @@
 ; Define the predicates that check whether a datum is a primitive type (or atomic)
 
 (define (lit? datum)
-	(not (pair? datum)))
+	(or (not (pair? datum))
+      (not (memv (car datum) *prim-proc-names*))))
 
 (define (form? datum)
 	(and (pair? datum)
