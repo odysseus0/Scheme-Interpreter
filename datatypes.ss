@@ -40,8 +40,8 @@
 							(exps (list-of expression?))
 							(bodies (list-of expression?))]
 	[set-exp (var symbol?) (body expression?)]
-  [and-exp (bodies (list-of expression?))]
-  [or-exp (bodies (list-of expression?))]
+  [and-exp (exps (list-of expression?))]
+  [or-exp (exps (list-of expression?))]
   [cond-exp (clauses (list-of clause?))]
   [case-exp (expr expression?) (clauses (list-of clause?))]
   [begin-exp (bodies (list-of expression?))]

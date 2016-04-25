@@ -222,9 +222,37 @@
                                                       (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
            [begin-exp (bodies)
                       (lambda-exp (list) bodies)]
-           [and-exp ]
-           [or-exp]
-           [cond-exp]
+           [and-exp (exps)
+                    (let ([exps (map syntax-expand exps)])
+                      (cond [(null? exps) #t]
+                            [(null? (cdr exps)) (car exps)]
+                            [else
+                             (if-exp (car exps)
+                                     (syntax-expand (and-exp (cdr exps)))
+                                     #f)]))]
+           [or-exp (exps)
+                   (let ([exps (map syntax-expand exps)])
+                     (cond [(null? exps) #f]
+                           [(null? (cdr exps)) (car exps)]
+                           [else
+                            (let-exp (list 't)
+                                     (list (car exps))
+                                     (list (if-exp (car exps) (car exps)
+                                                   (syntax-expand (or-exp (cdr exps))))))]))]
+
+           [cond-exp (clauses)
+                     (let ([test (syntax-expand (1st (1st clauses)))]
+                           [exps (map syntax-expand (2nd (1st clauses)))]
+                           [rest-clauses (cdr clauses)])
+                       (if (null? rest-clauses)
+                           (if (equal? test (var-exp 'else))
+                               (syntax-expand (begin-exp exps))
+                               (if-then-exp test
+                                            (syntax-expand (begin-exp exps))))
+                           (if-then-else-exp test
+                                             (syntax-expand (begin-exp exps))
+                                             (syntax-expand (cond-exp rest-clauses)))))]
+
            [else exp])))
 
 (define rep ; "read-eval-print" loop.

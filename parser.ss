@@ -124,7 +124,7 @@
        [(eqv? (1st datum) 'cond)
         (cond-exp (map (lambda (x)
                         (if (eqv? (car x) 'else)
-                            (list 'else (map parse-exp (cdr x)))
+                            (list (var-exp 'else) (map parse-exp (cdr x)))
                             (list (parse-exp (car x)) (map parse-exp (cdr x)))))
                        (cdr datum)))]
 
@@ -132,7 +132,7 @@
         (case-exp (parse-exp (2nd datum))
                   (map (lambda (x)
                          (if (eqv? (car x) 'else)
-                             (list 'else (map parse-exp (cdr x)))
+                             (list (var-exp 'else) (map parse-exp (cdr x)))
                              (list (parse-exp (car x)) (map parse-exp (cdr x)))))
                        (cddr datum)))]
 
