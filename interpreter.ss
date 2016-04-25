@@ -74,8 +74,6 @@
       (list args)
       (cons (car args) (imp-helper (cdr formals) (cdr args)))))
 
-;;; proc-val: proc-value datatype
-;;; @return scheme-value
 (define apply-proc
 	(lambda (proc-value args)
 		(cases proc-val proc-value
