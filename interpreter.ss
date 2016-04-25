@@ -214,10 +214,15 @@
            [let*-exp (vars exps bodies)
                      (let ([bodies (map syntax-expand bodies)]
                            [exps (map syntax-expand exps)])
-                       (if (null? vars)
-                           bodies
-                       (syntax-expand (let-exp (list (car vars)) (list (car exps))
-                                               (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies))))))]
+                       (cond [(null? vars) bodies] ; I may change "bodies" to a begin expression later
+                             [(null? (cdr vars))
+                              (syntax-expand (let-exp (list (car vars)) (list (car exps)) bodies))]
+                             [else 
+                              (syntax-expand (let-exp (list (car vars)) (list (car exps))
+                                                      (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
+           [and-exp ]
+           [or-exp]
+           [cond-exp]
            [else exp])))
 
 (define rep ; "read-eval-print" loop.
