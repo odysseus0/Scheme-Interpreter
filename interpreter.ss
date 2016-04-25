@@ -224,21 +224,21 @@
                       (lambda-exp (list) bodies)]
            [and-exp (exps)
                     (let ([exps (map syntax-expand exps)])
-                      (cond [(null? exps) #t]
+                      (cond [(null? exps) (lit-exp #t)]
                             [(null? (cdr exps)) (car exps)]
                             [else
-                             (if-exp (car exps)
-                                     (syntax-expand (and-exp (cdr exps)))
-                                     #f)]))]
+                             (if-then-else-exp (car exps)
+                                               (syntax-expand (and-exp (cdr exps)))
+                                               (lit-exp #f))]))]
            [or-exp (exps)
                    (let ([exps (map syntax-expand exps)])
-                     (cond [(null? exps) #f]
+                     (cond [(null? exps) (lit-exp #f)]
                            [(null? (cdr exps)) (car exps)]
                            [else
-                            (let-exp (list 't)
+                            (let-exp (list (lit-exp #t))
                                      (list (car exps))
-                                     (list (if-exp (car exps) (car exps)
-                                                   (syntax-expand (or-exp (cdr exps))))))]))]
+                                     (list (if-then-else-exp (car exps) (car exps)
+                                                             (syntax-expand (or-exp (cdr exps))))))]))]
 
            [cond-exp (clauses)
                      (let ([test (syntax-expand (1st (1st clauses)))]
@@ -246,11 +246,11 @@
                            [rest-clauses (cdr clauses)])
                        (if (null? rest-clauses)
                            (if (equal? test (var-exp 'else))
-                               (syntax-expand (begin-exp exps))
+                               (app-exp (syntax-expand (begin-exp exps)) (list))
                                (if-then-exp test
-                                            (syntax-expand (begin-exp exps))))
+                                            (app-exp (syntax-expand (begin-exp exps)) (list))))
                            (if-then-else-exp test
-                                             (syntax-expand (begin-exp exps))
+                                             (app-exp (syntax-expand (begin-exp exps)) (list))
                                              (syntax-expand (cond-exp rest-clauses)))))]
 
            [else exp])))
