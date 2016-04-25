@@ -220,6 +220,8 @@
                              [else 
                               (syntax-expand (let-exp (list (car vars)) (list (car exps))
                                                       (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
+           [begin-exp (bodies)
+                      (lambda-exp (list) bodies)]
            [and-exp ]
            [or-exp]
            [cond-exp]
