@@ -29,7 +29,7 @@
 		(cond
 		 [(symbol? datum) (var-exp datum)]
 		 [(form? datum) (form-exp datum)]
-		 [(lit? datum) (lit-exp datum)]
+		 [(atom? datum) (lit-exp datum)]
 		 [(pair? datum)
 			(cond
 			 [(eqv? (1st datum) 'lambda)
@@ -140,10 +140,10 @@
         (begin-exp (map parse-exp (cdr datum)))]
 
 			 [else
-				(if (list? datum)
-						(app-exp (parse-exp (car datum)) (map parse-exp (cdr datum)))
-						(eopl:error 'parse-exp
-												"application ~s is not a proper list" datum))])]
+        (cond ([lit-lst? datum] (lit-exp datum))
+              ([list? datum] (app-exp (parse-exp (car datum)) (map parse-exp (cdr datum))))
+              (else (eopl:error 'parse-exp
+                                "application ~s is not a proper list" datum)))])]
 		 [else (eopl:error 'parse-exp "bad expression: ~s" datum)])))
 
 

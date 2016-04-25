@@ -4,9 +4,21 @@
 
 ; Define the predicates that check whether a datum is a primitive type (or atomic)
 
+(define (lit-lst? datum)
+  (if (null? datum)
+      #t
+      (let ([first-type (1st (parse-exp (1st datum)))])
+        (case first-type
+          [(lit-exp form-exp var-exp) #t]
+          [else #f]))))
+
+(define (atom? datum)
+  (and (not (pair? datum))
+       (not (null? datum))))
+
 (define (lit? datum)
-	(or (not (pair? datum))
-      (not (memv (car datum) *prim-proc-names*))))
+  (or (atom? datum)
+      (lit-lst? datum)))
 
 (define (form? datum)
 	(and (pair? datum)
