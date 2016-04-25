@@ -5,6 +5,7 @@
 (define 1st car)
 (define 2nd cadr)
 (define 3rd caddr)
+(define 4th cadddr)
 
 (define improper-list?
   (lambda (datum)
@@ -16,6 +17,12 @@
     (if (symbol? impLst)
         (list impLst)
         (cons (car impLst) (improper-list->proper (cdr impLst))))))
+
+(define proper-list->improper
+  (lambda (propLst)
+    (if (= (length propLst) 1)
+        (car propLst)
+        (cons (car propLst) (proper-list->improper (cdr propLst))))))
 
 (define parse-exp
 	(lambda (datum)
@@ -108,6 +115,30 @@
 							 (eopl:error 'parse-exp "set!: Too many parts: ~s" datum))
 							(else (set-exp (parse-exp (2nd datum)) (parse-exp (3rd datum)))))]
 
+       [(eqv? (1st datum) 'and)
+        (and-exp (map parse-exp (cdr datum)))]
+
+       [(eqv? (1st datum) 'or)
+        (or-exp (map parse-exp (cdr datum)))]
+
+       [(eqv? (1st datum) 'cond)
+        (cond-exp (map (lambda (x)
+                        (if (eqv? (car x) 'else)
+                            (list 'else (map parse-exp (cdr x)))
+                            (list (parse-exp (car x)) (map parse-exp (cdr x)))))
+                       (cdr datum)))]
+
+       [(eqv? (1st datum) 'case)
+        (case-exp (parse-exp (2nd datum))
+                  (map (lambda (x)
+                         (if (eqv? (car x) 'else)
+                             (list 'else (map parse-exp (cdr x)))
+                             (list (parse-exp (car x)) (map parse-exp (cdr x)))))
+                       (cddr datum)))]
+
+       [(eqv? (1st datum) 'begin)
+        (begin-exp (map parse-exp (cdr datum)))]
+
 			 [else
 				(if (list? datum)
 						(app-exp (parse-exp (car datum)) (map parse-exp (cdr datum)))
@@ -129,6 +160,9 @@
            [lambda-exp-variable (formal body)
                                 `( lambda ,formal
                                    ,@(map unparse-exp body))]
+           [lambda-exp-improper (formals body)
+                                `( lambda ,(proper-list->improper formals)
+                                   ,@(map unparse-exp body))]
            [if-then-exp (pred then-exp)
                         `( if ,(unparse-exp pred) ,(unparse-exp then-exp))]
            [if-then-else-exp (pred then-exp else-exp)
@@ -141,6 +175,14 @@
                        `( letrec ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
            [set-exp (var body)
                     `( set! ,var ,(unparse-exp body))]
+           [and-exp (body)
+                    `( and ,@(map unparse-exp body))]
+           [or-exp (body)
+                   `( or ,@(map unparse-exp body))]
+           ;[cond-exp (clauses)
+           ;[case-exp (expr clauses)
+           [begin-exp (bodies)
+                      `( begin ,@(map unparse-exp rest))]
            [app-exp (rator rand)
                     `( ,(unparse-exp rator) ,@(map unparse-exp rand))])))
 
