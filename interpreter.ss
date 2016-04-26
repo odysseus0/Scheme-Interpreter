@@ -253,6 +253,21 @@
                                              (app-exp (syntax-expand (begin-exp exps)) (list))
                                              (syntax-expand (cond-exp rest-clauses)))))]
 
+           [case-exp (expr clauses)
+                     (let* ([expr (syntax-expand expr)]
+                            [keys (1st (1st clauses))]
+                            [exps (map syntax-expand (2nd (1st clauses)))]
+                            [rest-clauses (cdr clauses)]
+                            [test (app-exp (parse-exp 'memv) (list expr keys))])
+                       (if (null? rest-clauses)
+                           (if (equal? keys (var-exp 'else))
+                               (app-exp (syntax-expand (begin-exp exps)) (list))
+                               (if-then-exp test
+                                            (app-exp (syntax-expand (begin-exp exps)) (list))))
+                           (if-then-else-exp test
+                                             (app-exp (syntax-expand (begin-exp exps)) (list))
+                                             (syntax-expand (cond-exp rest-clauses)))))]
+
            [else exp])))
 
 (define rep ; "read-eval-print" loop.

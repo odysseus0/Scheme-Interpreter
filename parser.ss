@@ -133,7 +133,7 @@
                   (map (lambda (clause)
                          (if (eqv? (car clause) 'else)
                              (list (var-exp 'else) (map parse-exp (cdr clause)))
-                             (list (parse-exp (apply list (car clause))) (map parse-exp (cdr clause)))))
+                             (list (parse-exp (apply list (cons 'list (car clause)))) (map parse-exp (cdr clause)))))
                        (cddr datum)))]
 
        [(eqv? (1st datum) 'begin)
