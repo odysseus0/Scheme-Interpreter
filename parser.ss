@@ -130,10 +130,10 @@
 
        [(eqv? (1st datum) 'case)
         (case-exp (parse-exp (2nd datum))
-                  (map (lambda (x)
-                         (if (eqv? (car x) 'else)
-                             (list (var-exp 'else) (map parse-exp (cdr x)))
-                             (list (parse-exp (car x)) (map parse-exp (cdr x)))))
+                  (map (lambda (clause)
+                         (if (eqv? (car clause) 'else)
+                             (list (var-exp 'else) (map parse-exp (cdr clause)))
+                             (list (parse-exp (apply list (car clause))) (map parse-exp (cdr clause)))))
                        (cddr datum)))]
 
        [(eqv? (1st datum) 'begin)
