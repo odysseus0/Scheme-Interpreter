@@ -46,6 +46,13 @@
                                 (closure-lambda-var formals bodies env)]
            [lambda-exp-improper (formals bodies)
                                 (closure-lambda-improper formals bodies env)]
+           [while-exp (test bodies)
+                      (letrec
+                        ([helper
+                           (lambda ()
+                             (if (eval-exp test env)
+                                 (begin (eval-bodies bodies env) (helper))))])
+                        (helper))]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
@@ -107,7 +114,8 @@
 		cddar cdddr list null? assq eq? equal? atom? length
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
-		set-car! set-cdr! vector-set! display newline procedure? apply map memv))
+		set-car! set-cdr! vector-set! display newline procedure?
+    apply map quotient memv))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -199,6 +207,7 @@
 			; (newline textual-output-port)
 			[(newline) (cond [(= (length args) 1) (newline (1st args))]
 											 [else (newline)])]
+      [(quotient) (quotient (1st args) (2nd args))]
 			[else (eopl:error 'apply-prim-proc
 									 "Bad primitive procedure name: ~s" 
 									 prim-proc)])))
@@ -270,6 +279,9 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (case-exp expr rest-clauses)))))]
+
+           [while-exp (test bodies)
+                      (while-exp (syntax-expand test) (map syntax-expand bodies))]
 
            [else exp])))
 
