@@ -107,7 +107,7 @@
 		cddar cdddr list null? assq eq? equal? atom? length
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
-		set-car! set-cdr! vector-set! display newline procedure? apply map))
+		set-car! set-cdr! vector-set! display newline procedure? apply map memv))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -163,6 +163,7 @@
 			[(null?) (null? (1st args))]
       [(apply) (apply (lambda x (apply-proc (1st args) x)) (2nd args))] ;;; apply-proc requires its args to be a list
       [(map) (map (lambda x (apply-proc (1st args) x)) (2nd args))]
+      [(memv) (memv (1st args) (2nd args))]
 			; (assq obj alist)
 			[(assq) (assq (1st args) (2nd args))]
 			[(eq?) (eq? (1st args) (2nd args))]
