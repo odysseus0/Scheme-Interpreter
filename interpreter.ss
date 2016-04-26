@@ -265,10 +265,10 @@
                            (if (equal? keys (var-exp 'else))
                                bodies
                                (if-then-exp test
-                                            bodies
+                                            bodies))
                            (if-then-else-exp test
                                              bodies
-                                             (syntax-expand (cond-exp rest-clauses)))))))]
+                                             (syntax-expand (cond-exp rest-clauses)))))]
 
            [else exp])))
 
