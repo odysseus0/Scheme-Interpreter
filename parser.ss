@@ -153,7 +153,7 @@
     (cases expression exp
            [var-exp (id) id]
            [lit-exp (id) id]
-           [form-exp (form) (quote form)]
+           [form-exp (form) `,form]
            [lambda-exp (formals body)
                        `( lambda ,formals
                           ,@(map unparse-exp body))]
@@ -184,6 +184,7 @@
            [begin-exp (bodies)
                       `( begin ,@(map unparse-exp rest))]
            [app-exp (rator rand)
-                    `( ,(unparse-exp rator) ,@(map unparse-exp rand))])))
+                    `( ,(unparse-exp rator) ,@(map unparse-exp rand))]
+           [else (eopl:error 'unparse-exp "Cannot unparse expression ~s. Unspecified" exp)])))
 
 

@@ -269,7 +269,7 @@
                                             bodies))
                            (if-then-else-exp test
                                              bodies
-                                             (syntax-expand (cond-exp rest-clauses)))))]
+                                             (syntax-expand (case-exp expr rest-clauses)))))]
 
            [else exp])))
 
