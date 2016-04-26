@@ -45,6 +45,7 @@
   [cond-exp (clauses (list-of clause?))]
   [case-exp (expr expression?) (clauses (list-of clause?))]
   [begin-exp (bodies (list-of expression?))]
+  [while-exp (test expression?) (bodies (list-of expression?))]
 	[app-exp (rator expression?) (rand (list-of expression?))])
 
 
