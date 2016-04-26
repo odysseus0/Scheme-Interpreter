@@ -139,6 +139,9 @@
        [(eqv? (1st datum) 'begin)
         (begin-exp (map parse-exp (cdr datum)))]
 
+       [(eqv? (1st datum) 'while)
+        (while-exp (parse-exp (2nd datum)) (map parse-exp (cddr datum)))]
+
 			 [else
 				(if (list? datum)
 						(app-exp (parse-exp (car datum)) (map parse-exp (cdr datum)))

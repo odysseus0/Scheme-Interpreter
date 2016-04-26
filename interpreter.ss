@@ -46,6 +46,13 @@
                                 (closure-lambda-var formals bodies env)]
            [lambda-exp-improper (formals bodies)
                                 (closure-lambda-improper formals bodies env)]
+           [while-exp (test bodies)
+                      (letrec
+                        ([helper
+                           (lambda ()
+                             (if (eval-exp test env)
+                                 (begin (eval-exp bodies env) (helper))))])
+                        (helper))]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
@@ -269,6 +276,10 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (cond-exp rest-clauses)))))]
+
+           [while-exp (test bodies)
+                      (while-exp (syntax-expand bodies) (map syntax-expand bodies))]
+
 
            [else exp])))
 
