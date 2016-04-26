@@ -217,6 +217,10 @@
 (define syntax-expand
   (lambda (exp)
     (cases expression exp
+           [if-then-exp (pred then-exp)
+                        (let ([pred (syntax-expand pred)]
+                              [then-exp (syntax-expand then-exp)])
+                          (if-then-exp pred then-exp))]
            [let-exp (vars exps bodies)
                     (let ([bodies (map syntax-expand bodies)]
                           [exps (map syntax-expand exps)])
