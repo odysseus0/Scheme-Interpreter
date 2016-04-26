@@ -221,7 +221,7 @@
                               (syntax-expand (let-exp (list (car vars)) (list (car exps))
                                                       (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
            [begin-exp (bodies)
-                      (lambda-exp (list) bodies)]
+                      (app-exp (lambda-exp (list) bodies) (list))]
            [and-exp (exps)
                     (let ([exps (map syntax-expand exps)])
                       (cond [(null? exps) (lit-exp #t)]
@@ -241,32 +241,34 @@
                                                              (syntax-expand (or-exp (cdr exps))))))]))]
 
            [cond-exp (clauses)
-                     (let ([test (syntax-expand (1st (1st clauses)))]
-                           [exps (map syntax-expand (2nd (1st clauses)))]
-                           [rest-clauses (cdr clauses)])
+                     (let* ([test (syntax-expand (1st (1st clauses)))]
+                            [exps (map syntax-expand (2nd (1st clauses)))]
+                            [rest-clauses (cdr clauses)]
+                            [bodies (syntax-expand (begin-exp exps))])
                        (if (null? rest-clauses)
                            (if (equal? test (var-exp 'else))
-                               (app-exp (syntax-expand (begin-exp exps)) (list))
+                               bodies
                                (if-then-exp test
-                                            (app-exp (syntax-expand (begin-exp exps)) (list))))
+                                            bodies))
                            (if-then-else-exp test
-                                             (app-exp (syntax-expand (begin-exp exps)) (list))
+                                             bodies
                                              (syntax-expand (cond-exp rest-clauses)))))]
 
            [case-exp (expr clauses)
                      (let* ([expr (syntax-expand expr)]
                             [keys (1st (1st clauses))]
                             [exps (map syntax-expand (2nd (1st clauses)))]
+                            [bodies (syntax-expand (begin-exp exps))]
                             [rest-clauses (cdr clauses)]
                             [test (app-exp (parse-exp 'memv) (list expr keys))])
                        (if (null? rest-clauses)
                            (if (equal? keys (var-exp 'else))
-                               (app-exp (syntax-expand (begin-exp exps)) (list))
+                               bodies
                                (if-then-exp test
-                                            (app-exp (syntax-expand (begin-exp exps)) (list))))
+                                            bodies
                            (if-then-else-exp test
-                                             (app-exp (syntax-expand (begin-exp exps)) (list))
-                                             (syntax-expand (cond-exp rest-clauses)))))]
+                                             bodies
+                                             (syntax-expand (cond-exp rest-clauses)))))))]
 
            [else exp])))
 
