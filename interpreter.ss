@@ -54,6 +54,21 @@
                                  (begin (eval-bodies bodies env) (helper))))])
                         (helper))]
 
+           [do2-exp (exps test-exp)
+                      (begin (eval-bodies exps env)
+                             (letrec
+                                 ([helper
+                                   (lambda ()
+                                     (if (eval-exp test-exp env)
+                                         (begin (eval-bodies exps env) (helper))))])
+                               (helper)))]
+
+           [call-with-values-exp (producer consumer)
+                                 (let* ([producer (eval-exp producer env)]
+                                        [args (apply-proc producer (list))]
+                                        [consumer (eval-exp consumer env)])
+                                   (apply-proc consumer args))]
+
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 ; Evaluate the list of operands, putting results into a list
@@ -115,7 +130,7 @@
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
 		set-car! set-cdr! vector-set! display newline procedure?
-    apply map quotient memv))
+    apply map quotient memv values))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -139,6 +154,7 @@
 (define apply-prim-proc
 	(lambda (prim-proc args)
 		(case prim-proc
+      [(values) (apply list args)]
 			[(+) (try '+ (apply + args))]
 			[(-) (apply - args)]
 			[(*) (apply * args)]
@@ -286,6 +302,11 @@
 
            [while-exp (test bodies)
                       (while-exp (syntax-expand test) (map syntax-expand bodies))]
+
+           [do1-exp (exps test-exp)
+                    (let ([new-exps (append (map syntax-expand exps)
+                                          (list (while-exp (syntax-expand test-exp) exps)))])
+                      (syntax-expand (begin-exp new-exps)))]
 
            [else exp])))
 

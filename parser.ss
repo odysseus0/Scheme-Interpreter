@@ -93,8 +93,11 @@
 
 			 [(eqv? (1st datum) 'letrec)
 				(let* ([decls (2nd datum)]
-							 [vars (map car decls)]
-							 [exps (map cadr decls)]
+							 [proc-names (map 1st decls)]
+               [lambdas (map 2nd decls)]
+               [idss (map 2nd lambdas)]
+               [bodiess (map (lambda (x) (map parse-exp (cddr x))) lambdas)]
+               [letrec-bodies (map parse-exp (3rd datum))]
 							 [length2? (lambda (x) (equal? 2 (length x)))])
 					(cond ([< (length datum) 3] (eopl:error 'parse-exp
 																									"letrec expression: incorrect length: ~s" datum))
@@ -104,9 +107,9 @@
 																												"decls: not all proper lists: ~s" decls))
 								([not (andmap length2? decls)] (eopl:error 'parse-exp
 																													 "letrec expression: decls: not all length 2: ~s" decls))
-								([not (andmap symbol? vars)] (eopl:error 'parse-exp
+								([not (andmap symbol? proc-names)] (eopl:error 'parse-exp
 																												 "decls: first members must be symbols: ~s" decls))
-								(else (letrec-exp vars (map parse-exp exps) (map parse-exp (cddr datum))))))]
+								(else (letrec-exp proc-names idss bodiess letrec-bodies))))]
 
 			 [(eqv? (1st datum) 'set!)
 				(cond ([< (length datum) 3]
@@ -142,6 +145,15 @@
        [(eqv? (1st datum) 'while)
         (while-exp (parse-exp (2nd datum)) (map parse-exp (cddr datum)))]
 
+       [(eqv? (1st datum) 'do1)
+        (do1-exp (map parse-exp (2nd datum)) (parse-exp (cadddr datum)))]
+
+       [(eqv? (1st datum) 'do2)
+        (do2-exp (map parse-exp (2nd datum)) (parse-exp (cadddr datum)))]
+
+       [(eqv? (1st datum) 'call-with-values)
+        (call-with-values-exp (parse-exp (2nd datum)) (parse-exp (3rd datum)))]
+
 			 [else
 				(if (list? datum)
 						(app-exp (parse-exp (car datum)) (map parse-exp (cdr datum)))
@@ -174,8 +186,8 @@
                     `( let ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
            [let*-exp (vars exps body)
                      `( let* ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
-           [letrec-exp (vars exps body)
-                       `( letrec ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
+           ;[letrec-exp (proc-names idss bodiess letrec-bodies)
+           ;            `( letrec ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
            [set-exp (var body)
                     `( set! ,var ,(unparse-exp body))]
            [and-exp (body)
