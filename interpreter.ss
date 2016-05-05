@@ -54,14 +54,9 @@
                                  (begin (eval-bodies bodies env) (helper))))])
                         (helper))]
 
-           [do2-exp (exps test-exp)
-                      (begin (eval-bodies exps env)
-                             (letrec
-                                 ([helper
-                                   (lambda ()
-                                     (if (eval-exp test-exp env)
-                                         (begin (eval-bodies exps env) (helper))))])
-                               (helper)))]
+           [do2-exp (bodies test)
+                    (begin (eval-bodies bodies env)
+                           (eval-exp (while-exp test bodies) env))]
 
            [call-with-values-exp (producer consumer)
                                  (let* ([producer (eval-exp producer env)]
@@ -130,7 +125,7 @@
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
 		set-car! set-cdr! vector-set! display newline procedure?
-    apply map quotient memv values))
+    apply map quotient memv values call-with-values))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -154,7 +149,8 @@
 (define apply-prim-proc
 	(lambda (prim-proc args)
 		(case prim-proc
-      [(values) (apply list args)]
+      [(values) args] ; package the values as a list
+      [(call-with-values) (apply-proc (cadr args) (apply-proc (car args) '()))]
 			[(+) (try '+ (apply + args))]
 			[(-) (apply - args)]
 			[(*) (apply * args)]
@@ -185,7 +181,7 @@
 			[(cdddr) (cdddr (1st args))]
 			[(list) (apply list args)]
 			[(null?) (null? (1st args))]
-      [(apply) (apply (lambda x (apply-proc (1st args) x)) (2nd args))] ;;; apply-proc requires its args to be a list
+      [(apply) (apply-proc (car args) (cadr args))]
       [(map) (map (lambda x (apply-proc (1st args) x)) (2nd args))]
       [(memv) (memv (1st args) (2nd args))]
 			; (assq obj alist)
@@ -302,11 +298,10 @@
 
            [while-exp (test bodies)
                       (while-exp (syntax-expand test) (map syntax-expand bodies))]
-
-           [do1-exp (exps test-exp)
-                    (let ([new-exps (append (map syntax-expand exps)
-                                          (list (while-exp (syntax-expand test-exp) exps)))])
-                      (syntax-expand (begin-exp new-exps)))]
+           [do1-exp (bodies test)
+                    (syntax-expand (begin-exp (snoc bodies (while-exp test bodies))))]
+           [do2-exp (bodies test)
+                    (do2-exp (map syntax-expand bodies) (syntax-expand test))]
 
            [else exp])))
 
