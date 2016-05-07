@@ -97,7 +97,7 @@
                [lambdas (map 2nd decls)]
                [idss (map 2nd lambdas)]
                [bodiess (map (lambda (x) (map parse-exp (cddr x))) lambdas)]
-               [letrec-bodies (map parse-exp (3rd datum))]
+               [letrec-bodies (map parse-exp (cddr datum))]
 							 [length2? (lambda (x) (equal? 2 (length x)))])
 					(cond ([< (length datum) 3] (eopl:error 'parse-exp
 																									"letrec expression: incorrect length: ~s" datum))

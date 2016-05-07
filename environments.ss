@@ -46,5 +46,5 @@
               (if (number? pos)
                   (succeed (closure (list-ref idss pos)
                                     (list-ref bodiess pos)
-                                    (extend-env-recursively proc-names idss bodiess env)))
+                                    env))
                   (apply-env old-env sym succeed fail)))])))
