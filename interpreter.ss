@@ -9,10 +9,12 @@
     ; later we may add things that are not expressions.
 		(eval-exp form init-env)))
 
-; The eval-exp is the main component of the interpreter
-;;; @param exp: expression dataype; env: envirionment datatype
-;;; @return scheme-value, prim-proc
+;;; The eval-exp is the main component of the interpreter
+;; @param exp: expression dataype; env: envirionment datatype
+;; @return scheme-value, prim-proc
 
+;; eval-exp deals with the evaluation of special forms.
+;; We leave the evaluation of procedures to eval-proc.
 (define eval-exp
 	(lambda (exp env)
 		(cases expression exp
@@ -24,6 +26,11 @@
 															 (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
 																											"variable not found in environment: ~s"
 																											id)))]
+
+           [letrec-exp (proc-names idss bodiess letrec-bodies)
+                       (eval-bodies letrec-bodies
+                                    (extend-env-recursively proc-names idss bodiess env))]
+
 					 [let-exp (vars exps bodies)
 										(let ([extended-env (extend-env vars
 																										(eval-rands exps env)
@@ -149,6 +156,7 @@
 (define apply-prim-proc
 	(lambda (prim-proc args)
 		(case prim-proc
+
       [(values) args] ; package the values as a list
       [(call-with-values) (apply-proc (cadr args) (apply-proc (car args) '()))]
 			[(+) (try '+ (apply + args))]
@@ -234,6 +242,7 @@
                               [then-exp (syntax-expand then-exp)])
                           (if-then-exp pred then-exp))]
            [let-exp (vars exps bodies)
+
                     (let ([bodies (map syntax-expand bodies)]
                           [exps (map syntax-expand exps)])
                       (app-exp (lambda-exp vars bodies) exps))]

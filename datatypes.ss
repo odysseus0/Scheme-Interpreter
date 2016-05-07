@@ -65,7 +65,7 @@
   [recursively-extended-env-record
    (proc-names (list-of symbol?))
    (idss (list-of (list-of symbol?)))
-   (bodies (list-of expression?))
+   (bodiess (list-of (list-of expression?)))
    (env environment?)])
 
 ; Datatype for procedures.
