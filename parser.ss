@@ -58,11 +58,19 @@
 
 			 ;; (let ((var expr) ...) body1 body2 ...) 
 			 [(eqv? (1st datum) 'let)
-				(let* ([decls (2nd datum)]
-							 [vars (map car decls)]
-							 [exps (map cadr decls)]
-							 [length2? (lambda (x) (equal? 2 (length x)))])
-					(cond ([< (length datum) 3] (eopl:error 'parse-exp
+        ;; Named let
+        ;; (let name ((var expr) ...) body1 body2 ...)
+        (if (symbol? (2nd datum))
+            (named-let-exp (2nd datum)
+                           (map car (3rd datum))
+                           (map (lambda (x) (parse-exp (cadr x))) (3rd datum))
+                           (map parse-exp (cdddr datum)))
+            (let* ([decls (2nd datum)]
+							     [vars (map car decls)]
+							     [exps (map cadr decls)]
+							     [length2? (lambda (x) (equal? 2 (length x)))])
+              (cond
+                ([< (length datum) 3] (eopl:error 'parse-exp
 																									"let expression: incorrect length: ~s" datum))
 								([not (list? decls)] (eopl:error 'parse-exp
 																								 "decls: not a proper list: ~s" decls))
@@ -72,7 +80,7 @@
 																													 "let expression: decls: not all length 2: ~s" decls))
 								([not (andmap symbol? vars)] (eopl:error 'parse-exp
 																												 "decls: first members must be symbols: ~s" decls))
-								(else (let-exp vars (map parse-exp exps) (map parse-exp (cddr datum))))))]
+								(else (let-exp vars (map parse-exp exps) (map parse-exp (cddr datum)))))))]
 
 			 [(eqv? (1st datum) 'let*)
 				(let* ([decls (2nd datum)]

@@ -312,6 +312,14 @@
            [do2-exp (bodies test)
                     (do2-exp (map syntax-expand bodies) (syntax-expand test))]
 
+           [named-let-exp (name vars exps bodies)
+                          (app-exp
+                            (letrec-exp (list name)   ; proc-names
+                                        (list vars)   ; idss
+                                        (list (map syntax-expand bodies)) ; bodiess
+                                        (list (var-exp name)))
+                            exps)]
+
            [else exp])))
 
 (define rep ; "read-eval-print" loop.
