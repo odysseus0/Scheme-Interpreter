@@ -132,7 +132,7 @@
 		list->vector list? pair? procedure? vector->list
 		vector make-vector vector-ref vector? number? symbol?
 		set-car! set-cdr! vector-set! display newline procedure?
-    apply map quotient memv values call-with-values list-tail eqv?))
+    apply map quotient memv values call-with-values list-tail eqv? append))
 
 (define init-env         ; for now, our initial global environment only contains 
 	(extend-env            ; procedure names.  Recall that an environment associates
@@ -156,6 +156,7 @@
 (define apply-prim-proc
 	(lambda (prim-proc args)
 		(case prim-proc
+      [(append) (apply append args)]
       [(eqv?) (apply eqv? args)]
       [(list-tail) (apply list-tail args)]
       [(values) args] ; package the values as a list
@@ -242,6 +243,13 @@
                         (let ([pred (syntax-expand pred)]
                               [then-exp (syntax-expand then-exp)])
                           (if-then-exp pred then-exp))]
+
+           [if-then-else-exp (pred then-exp else-exp)
+                             (let ([pred (syntax-expand pred)]
+                                   [then-exp (syntax-expand then-exp)]
+                                   [else-exp (syntax-expand else-exp)])
+                               (if-then-else-exp pred then-exp else-exp))]
+
            [let-exp (vars exps bodies)
 
                     (let ([bodies (map syntax-expand bodies)]
