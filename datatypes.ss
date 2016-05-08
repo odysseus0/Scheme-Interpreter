@@ -19,15 +19,27 @@
            (eqv? (1st datum) 'else))
        ((list-of expression?) (2nd datum))))
 
+(define improper-list-of
+  (lambda (pred)
+    (lambda (imp-lst)
+      (andmap pred (improper-list->proper imp-lst)))))
+
+(define list-implst-symbol?
+  (lambda (x)
+    (or (symbol? x)
+        ((list-of symbol?) x)
+        ((improper-list-of symbol?) x))))
+
+
 ; Parsed expression datatypes
 
 (define-datatype expression expression?
 	[lit-exp (id lit?)]
 	[form-exp (form form?)]
 	[var-exp (id symbol?)]
-	[lambda-exp (formals (list-of symbol?)) (bodies (list-of expression?))]
-	[lambda-exp-variable (formals (list-of symbol?)) (bodies (list-of expression?))]
-  [lambda-exp-improper (formals (list-of symbol?)) (bodies (list-of expression?))]
+	[lambda-exp (formals list-implst-symbol?) (bodies (list-of expression?))]
+	;[lambda-exp-variable (formals (list-of symbol?)) (bodies (list-of expression?))]
+  ;[lambda-exp-improper (formals (list-of symbol?)) (bodies (list-of expression?))]
 	[if-then-exp (pred expression?) (then-exp expression?)]
 	[if-then-else-exp (pred expression?) (then-exp expression?) (else-exp expression?)]
 	[let-exp (vars (list-of symbol?))

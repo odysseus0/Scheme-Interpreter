@@ -14,7 +14,7 @@
 
 (define improper-list->proper
   (lambda (impLst)
-    (if (symbol? impLst)
+    (if (atom? impLst)
         (list impLst)
         (cons (car impLst) (improper-list->proper (cdr impLst))))))
 
@@ -42,7 +42,7 @@
                      (lambda-exp formals (map parse-exp (cddr datum)))
                      (eopl:error 'parse-exp "lambda argument list: formals must be symbols: ~s" formals)))
                 ([improper-list? formals]
-                 (lambda-exp formals (map parse-exp (cddr datum))))))])]
+                 (lambda-exp formals (map parse-exp (cddr datum))))))]
 
 			 [(eqv? (1st datum) 'if)
 				(cond ([= (length datum) 3]
@@ -166,6 +166,7 @@
 						(app-exp (parse-exp (car datum)) (map parse-exp (cdr datum)))
 						(eopl:error 'parse-exp
 												"application ~s is not a proper list" datum))])]
+
 		 [else (eopl:error 'parse-exp "bad expression: ~s" datum)])))
 
 
