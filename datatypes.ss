@@ -24,6 +24,11 @@
     (lambda (imp-lst)
       (andmap pred (improper-list->proper imp-lst)))))
 
+(define list-implst-of-symbol?
+  (lambda (x)
+    (or ((list-of symbol?) x)
+        ((improper-list-of symbol?) x))))
+
 (define list-implst-symbol?
   (lambda (x)
     (or (symbol? x)
@@ -59,7 +64,7 @@
   [do1-exp (exps (list-of expression?)) (test-exp expression?)]
   [do2-exp (exps (list-of expression?)) (test-exp expression?)]
   [call-with-values-exp (producer expression?) (consumer expression?)]
-  [letrec-exp (proc-names (list-of symbol?)) (idss (list-of (list-of symbol?)))
+  [letrec-exp (proc-names (list-of symbol?)) (idss (list-of list-implst-of-symbol?))
               (bodiess (list-of (list-of expression?))) (letrec-bodies (list-of expression?))]
   [named-let-exp (name symbol?)
                  (vars (list-of symbol?))
@@ -79,7 +84,7 @@
     (env environment?))
   [recursively-extended-env-record
    (proc-names (list-of symbol?))
-   (idss (list-of (list-of symbol?)))
+   (idss (list-of list-implst-of-symbol?))
    (bodiess (list-of (list-of expression?)))
    (env environment?)])
 
