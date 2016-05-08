@@ -115,12 +115,12 @@
                          (eval-bodies bodies extended-env))]
                       ; improper list
                       [(pair? params)
-                       (let ([extended-env (extend-env params
+                       (let ([extended-env (extend-env (improper-list->proper params)
                                                        (imp-helper params args)
                                                        env)])
                          (eval-bodies bodies extended-env))]
                       [(symbol? params)
-                       (let ([extended-env (extend-env params
+                       (let ([extended-env (extend-env (list params)
                                                        (list args)
                                                        env)])
                          (eval-bodies bodies extended-env))]
