@@ -36,7 +36,7 @@
 				(let ([body (cddr datum)]
 							[formals (2nd datum)])
 					(cond ([null? body] (eopl:error 'parse-exp "lambda expression missing body"))
-                ([symbol? formals] (lambda-exp formals) (map parse-exp (cddr datum)))
+                ([symbol? formals] (lambda-exp formals (map parse-exp (cddr datum))))
                 ([list? formals]
                  (if (andmap symbol? formals)
                      (lambda-exp formals (map parse-exp (cddr datum)))
@@ -180,12 +180,12 @@
            [lambda-exp (formals body)
                        `( lambda ,formals
                           ,@(map unparse-exp body))]
-           [lambda-exp-variable (formal body)
-                                `( lambda ,formal
-                                   ,@(map unparse-exp body))]
-           [lambda-exp-improper (formals body)
-                                `( lambda ,(proper-list->improper formals)
-                                   ,@(map unparse-exp body))]
+           ;[lambda-exp-variable (formal body)
+           ;                     `( lambda ,formal
+           ;                        ,@(map unparse-exp body))]
+           ;[lambda-exp-improper (formals body)
+           ;                     `( lambda ,(proper-list->improper formals)
+           ;                        ,@(map unparse-exp body))]
            [if-then-exp (pred then-exp)
                         `( if ,(unparse-exp pred) ,(unparse-exp then-exp))]
            [if-then-else-exp (pred then-exp else-exp)

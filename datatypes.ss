@@ -87,13 +87,13 @@
 
 (define-datatype proc-val proc-val?
 	[prim-proc (name symbol?)]
-	[closure (params (list-of symbol?))
+	[closure (params list-implst-symbol?)
 					 (bodies (list-of expression?))
-					 (env environment?)]
-  [closure-lambda-var (param (list-of symbol?))
-                      (bodies (list-of expression?))
-                      (env environment?)]
-  [closure-lambda-improper (params (list-of symbol?))
-                           (bodies (list-of expression?))
-                           (env environment?)])
+					 (env environment?)])
+  ;[closure-lambda-var (param (list-of symbol?))
+  ;                    (bodies (list-of expression?))
+  ;                    (env environment?)]
+  ;[closure-lambda-improper (params (list-of symbol?))
+  ;                         (bodies (list-of expression?))
+  ;                         (env environment?)])
 
