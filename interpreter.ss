@@ -49,10 +49,10 @@
                             (eval-exp then-exp env))]
 					 [lambda-exp (params bodies)
 											 (closure params bodies env)]
-           [lambda-exp-variable (formals bodies)
-                                (closure-lambda-var formals bodies env)]
-           [lambda-exp-improper (formals bodies)
-                                (closure-lambda-improper formals bodies env)]
+           ;[lambda-exp-variable (formals bodies)
+           ;                     (closure-lambda-var formals bodies env)]
+           ;[lambda-exp-improper (formals bodies)
+           ;                     (closure-lambda-improper formals bodies env)]
            [while-exp (test bodies)
                       (letrec
                         ([helper
@@ -126,7 +126,7 @@
                          (eval-bodies bodies extended-env))]
 					 [else (eopl:error 'apply-proc
 														 "Attempt to apply bad procedure: ~s"
-														 proc-value)])))
+														 proc-value)])])))
 
 (define *prim-proc-names*
 	'(+ - * / add1 sub1 zero? not = < > <= >= cons car cdr
