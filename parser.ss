@@ -36,14 +36,13 @@
 				(let ([body (cddr datum)]
 							[formals (2nd datum)])
 					(cond ([null? body] (eopl:error 'parse-exp "lambda expression missing body"))
-                ([symbol? formals] (lambda-exp-variable (list formals) (map parse-exp (cddr datum))))
+                ([symbol? formals] (lambda-exp formals) (map parse-exp (cddr datum)))
                 ([list? formals]
                  (if (andmap symbol? formals)
                      (lambda-exp formals (map parse-exp (cddr datum)))
                      (eopl:error 'parse-exp "lambda argument list: formals must be symbols: ~s" formals)))
                 ([improper-list? formals]
-                 (let ([formals (improper-list->proper formals)])
-                 (lambda-exp-improper formals (map parse-exp (cddr datum)))))))]
+                 (lambda-exp formals (map parse-exp (cddr datum))))))])]
 
 			 [(eqv? (1st datum) 'if)
 				(cond ([= (length datum) 3]
