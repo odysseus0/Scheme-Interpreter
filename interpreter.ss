@@ -74,7 +74,6 @@
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 ; Evaluate the list of operands, putting results into a list
-
 (define eval-rands
 	(lambda (rands env)
 		(map (lambda (x) (eval-exp x env))
