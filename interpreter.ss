@@ -91,12 +91,14 @@
 
 ;  Apply a procedure to its arguments.
 
-;;; Helper procedure that will allow extend-env bind varialbes in the correct fashion for
-;;; closure-lambda-improper
-(define (imp-helper formals args)
-  (if (null? (cdr formals))
-      (list args)
-      (cons (car args) (imp-helper (cdr formals) (cdr args)))))
+;;; Helper procedure that will allow extend-env bind varialbes in the correct fashion.
+;;; > (imp-helper '(a b . c) '(1 2 3 4 5))
+;;; (1 2 (3 4 5))
+(define imp-helper
+  (lambda (imp-ls ls)
+    (if (pair? imp-ls)
+      (cons (car ls) (imp-helper (cdr imp-ls) (cdr ls)))
+      (list ls))))
 
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
@@ -105,22 +107,23 @@
 		(cases proc-val proc-value
 					 [prim-proc (op) (apply-prim-proc op args)]
 					 [closure (params bodies env)
-										(let ([extended-env (extend-env params
-																										args
-																										env)])
-											(eval-bodies bodies extended-env))]
-           [closure-lambda-var (formals bodies env)
-                               (let ([extended-env (extend-env formals
-                                                               (list args)
-                                                               env)])
-                                 (eval-bodies bodies extended-env))]
-           [closure-lambda-improper (formals bodies env)
-                                    (let ([extended-env (extend-env formals
-                                                                   (imp-helper formals args)
-                                                                   env)])
-                                      (eval-bodies bodies extended-env))]
-
-                                        ; You will add other cases
+                    (cond
+                      [(list? params)
+                       (let ([extended-env (extend-env params
+                                                       args
+                                                       env)])
+                         (eval-bodies bodies extended-env))]
+                      ; improper list
+                      [(pair? params)
+                       (let ([extended-env (extend-env params
+                                                       (imp-helper params args)
+                                                       env)])
+                         (eval-bodies bodies extended-env))]
+                      [(symbol? params)
+                       (let ([extended-env (extend-env params
+                                                       (list args)
+                                                       env)])
+                         (eval-bodies bodies extended-env))]
 					 [else (eopl:error 'apply-proc
 														 "Attempt to apply bad procedure: ~s"
 														 proc-value)])))
