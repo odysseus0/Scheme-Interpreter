@@ -58,7 +58,7 @@
 																(let ((pos (list-find-position sym syms)))
 																	(if (number? pos)
                                       (succeed (refer vals pos))
-																			(apply-env env sym succeed fail))))
+																			(apply-env-ref env sym succeed fail))))
            [recursively-extended-env-record
             (proc-names idss bodiess old-env)
             (let ([pos (list-find-position sym proc-names)])
@@ -66,5 +66,5 @@
                   (succeed (closure (list-ref idss pos)
                                     (list-ref bodiess pos)
                                     env))
-                  (apply-env old-env sym succeed fail)))])))
+                  (apply-env-ref old-env sym succeed fail)))])))
 
