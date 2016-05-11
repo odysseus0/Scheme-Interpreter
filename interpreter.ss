@@ -71,6 +71,9 @@
                                         [consumer (eval-exp consumer env)])
                                    (apply-proc consumer args))]
 
+           [set-exp (var body)
+                    (apply-env-ref env var)
+
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 ; Evaluate the list of operands, putting results into a list
