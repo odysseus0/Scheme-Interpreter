@@ -103,5 +103,5 @@
   ;                         (env environment?)])
 
 (define-datatype reference reference?
-  [ref (vals vector?) (index number?)])
+  [refer (vals vector?) (index number?)])
 
