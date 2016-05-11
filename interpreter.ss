@@ -49,10 +49,6 @@
                             (eval-exp then-exp env))]
 					 [lambda-exp (params bodies)
 											 (closure params bodies env)]
-           ;[lambda-exp-variable (formals bodies)
-           ;                     (closure-lambda-var formals bodies env)]
-           ;[lambda-exp-improper (formals bodies)
-           ;                     (closure-lambda-improper formals bodies env)]
            [while-exp (test bodies)
                       (letrec
                         ([helper
