@@ -80,7 +80,7 @@
 	(empty-env-record)
 	(extended-env-record
     (syms (list-of symbol?))
-    (vals (list-of scheme-value?))
+    (vals vector?)
     (env environment?))
   [recursively-extended-env-record
    (proc-names (list-of symbol?))
@@ -101,4 +101,7 @@
   ;[closure-lambda-improper (params (list-of symbol?))
   ;                         (bodies (list-of expression?))
   ;                         (env environment?)])
+
+(define-datatype reference reference?
+  [refer (vals vector?) (index number?)])
 

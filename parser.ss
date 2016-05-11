@@ -123,7 +123,7 @@
 							 (eopl:error 'parse-exp "set!: missing expression: ~s" datum))
 							([> (length datum) 3]
 							 (eopl:error 'parse-exp "set!: Too many parts: ~s" datum))
-							(else (set-exp (parse-exp (2nd datum)) (parse-exp (3rd datum)))))]
+							(else (set-exp (2nd datum) (parse-exp (3rd datum)))))]
 
        [(eqv? (1st datum) 'and)
         (and-exp (map parse-exp (cdr datum)))]
