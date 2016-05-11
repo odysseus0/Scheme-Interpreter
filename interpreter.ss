@@ -74,6 +74,13 @@
                                    (lambda ()
                                      (eopl:error 'set-exp "apply-env-ref failed")))]
 
+           [define-exp (var exp)
+             (begin 
+               (set! init-env
+                 (extend-env (list var) (list (eval-exp exp init-env)) init-env))
+               (set! env
+                 (extend-env (list var) (list (eval-exp exp init-env)) env)))]
+
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 ; Evaluate the list of operands, putting results into a list
@@ -110,25 +117,28 @@
 					 [prim-proc (op) (apply-prim-proc op args)]
 					 [closure (params bodies env)
                     (cond
-                      [(list? params)
-                       (let ([extended-env (extend-env params
-                                                       args
-                                                       env)])
-                         (eval-bodies bodies extended-env))]
+                     [(null? params)
+                      (eval-bodies bodies env)]
+
+                     [(list? params)
+                      (let ([extended-env (extend-env params
+                                                      args
+                                                      env)])
+                        (eval-bodies bodies extended-env))]
                       ; improper list
-                      [(pair? params)
-                       (let ([extended-env (extend-env (improper-list->proper params)
-                                                       (imp-helper params args)
-                                                       env)])
-                         (eval-bodies bodies extended-env))]
-                      [(symbol? params)
-                       (let ([extended-env (extend-env (list params)
-                                                       (list args)
-                                                       env)])
-                         (eval-bodies bodies extended-env))]
-					 [else (eopl:error 'apply-proc
-														 "Attempt to apply bad procedure: ~s"
-														 proc-value)])])))
+                     [(pair? params)
+                      (let ([extended-env (extend-env (improper-list->proper params)
+                                                      (imp-helper params args)
+                                                      env)])
+                        (eval-bodies bodies extended-env))]
+                     [(symbol? params)
+                      (let ([extended-env (extend-env (list params)
+                                                      (list args)
+                                                      env)])
+                        (eval-bodies bodies extended-env))]
+                     [else (eopl:error 'apply-proc
+                                       "Attempt to apply bad procedure: ~s"
+                                       proc-value)])])))
 
 (define *prim-proc-names*
 	'(+ - * / add1 sub1 zero? not = < > <= >= cons car cdr

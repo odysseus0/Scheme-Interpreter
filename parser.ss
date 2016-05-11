@@ -161,6 +161,9 @@
        [(eqv? (1st datum) 'call-with-values)
         (call-with-values-exp (parse-exp (2nd datum)) (parse-exp (3rd datum)))]
 
+       [(eqv? (1st datum) 'define)
+        (define-exp (2nd datum) (parse-exp (3rd datum)))]
+
 			 [else
 				(if (list? datum)
 						(app-exp (parse-exp (car datum)) (map parse-exp (cdr datum)))

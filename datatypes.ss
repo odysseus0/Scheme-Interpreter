@@ -69,7 +69,8 @@
   [named-let-exp (name symbol?)
                  (vars (list-of symbol?))
                  (exps (list-of expression?))
-                 (bodies (list-of expression?))])
+                 (bodies (list-of expression?))]
+  [define-exp (var symbol?) (exp expression?)])
 
 ; Environment type definitions
 
