@@ -76,10 +76,8 @@
 
            [define-exp (var exp)
              (begin 
-               (set! init-env
-                 (extend-env (list var) (list (eval-exp exp init-env)) init-env))
-               (set! env
-                 (extend-env (list var) (list (eval-exp exp init-env)) env)))]
+               (set-cdr! init-env
+                 (extend-env (list var) (list (eval-exp exp init-env)) init-env)))]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
