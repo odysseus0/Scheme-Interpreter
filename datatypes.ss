@@ -72,6 +72,7 @@
                  (bodies (list-of expression?))]
   [define-exp (var symbol?) (exp expression?)])
 
+
 ; Environment type definitions
 
 (define scheme-value?
@@ -106,3 +107,30 @@
 (define-datatype reference reference?
   [refer (vals vector?) (index number?)])
 
+(define deref
+  (lambda (ref)
+    (cases reference ref
+           (refer (vals index)
+                  (vector-ref vals index)))))
+
+(define set-ref!
+  (lambda (ref val)
+    (cases reference ref
+           (refer (vals index)
+                  (vector-set! vals index val)))))
+
+(define cell
+  (lambda (value)
+    (box value)))
+
+(define cell?
+  (lambda (obj)
+    (box? obj)))
+
+(define cell-ref
+  (lambda (cell)
+    (unbox cell)))
+
+(define cell-set!
+  (lambda (cell value)
+    (set-box! cell value)))

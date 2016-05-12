@@ -77,6 +77,7 @@
            [define-exp (var exp)
              (set! init-env (extend-env (list var) (list (eval-exp exp init-env)) init-env))]
 
+
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
 ; Evaluate the list of operands, putting results into a list
@@ -244,18 +245,6 @@
 			[else (eopl:error 'apply-prim-proc
 									 "Bad primitive procedure name: ~s" 
 									 prim-proc)])))
-
-(define deref
-  (lambda (ref)
-    (cases reference ref
-      (refer (vals index)
-             (vector-ref vals index)))))
-
-(define set-ref!
-  (lambda (ref val)
-    (cases reference ref
-      (refer (vals index)
-             (vector-set! vals index val)))))
 
 ;;; Syntax Expansion on the abstract syntax tree
 
