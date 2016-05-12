@@ -75,9 +75,7 @@
                                      (eopl:error 'set-exp "apply-env-ref failed")))]
 
            [define-exp (var exp)
-             (begin 
-               (set-cdr! init-env
-                 (extend-env (list var) (list (eval-exp exp init-env)) init-env)))]
+             (set! init-env (extend-env (list var) (list (eval-exp exp init-env)) init-env))]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
@@ -290,7 +288,7 @@
                               (syntax-expand (let-exp (list (car vars)) (list (car exps))
                                                       (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
            [begin-exp (bodies)
-                      (app-exp (lambda-exp (list) bodies) (list))]
+                      (app-exp (lambda-exp (list) (map syntax-expand bodies)) (list))]
            [and-exp (exps)
                     (let ([exps (map syntax-expand exps)])
                       (cond [(null? exps) (lit-exp #t)]
