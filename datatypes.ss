@@ -72,7 +72,6 @@
                  (bodies (list-of expression?))]
   [define-exp (var symbol?) (exp expression?)])
 
-
 ; Environment type definitions
 
 (define scheme-value?

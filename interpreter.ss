@@ -156,12 +156,19 @@
 		set-car! set-cdr! vector-set! display newline procedure?
     apply map quotient memv values call-with-values list-tail eqv? append))
 
-(define init-env         ; for now, our initial global environment only contains 
-	(extend-env            ; procedure names.  Recall that an environment associates
-	 *prim-proc-names*     ; a value (not an expression) with an identifier.
-	 (map prim-proc
-				*prim-proc-names*)
-	 (empty-env)))
+(define generate-init-env
+  (lambda ()
+    (extend-env
+      *prim-proc-names*
+      (map prim-proc *prim-proc-names*)
+      (empty-env))))
+
+(define init-env
+  (generate-init-env))
+
+(define reset-global-env
+  (lambda ()
+    (set! init-env (generate-init-env))))
 
 ; Usually an interpreter must define each 
 ; built-in procedure individually.  We are "cheating" a little bit.
@@ -301,10 +308,11 @@
                      (cond [(null? exps) (lit-exp #f)]
                            [(null? (cdr exps)) (car exps)]
                            [else
-                            (let-exp (list 't)
-                                     (list (car exps))
-                                     (list (if-then-else-exp (car exps) (car exps)
-                                                             (syntax-expand (or-exp (cdr exps))))))]))]
+                            (syntax-expand
+                              (let-exp (list 't)
+                                       (list (car exps))
+                                       (list (if-then-else-exp (var-exp 't) (var-exp 't)
+                                                               (syntax-expand (or-exp (cdr exps)))))))]))]
 
            [cond-exp (clauses)
                      (let* ([test (syntax-expand (1st (1st clauses)))]
@@ -355,6 +363,12 @@
                        (let ([bodiess (map (lambda (bodies) (map syntax-expand bodies)) bodiess)]
                              [letrec-bodies (map syntax-expand letrec-bodies)])
                          (letrec-exp proc-names idss bodiess letrec-bodies))]
+
+           [define-exp (var exp)
+                       (define-exp var (syntax-expand exp))]
+
+           [lambda-exp (formals bodies)
+                       (lambda-exp formals (map syntax-expand bodies))]
 
            [else exp])))
 
