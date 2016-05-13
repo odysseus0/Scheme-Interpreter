@@ -7,7 +7,7 @@
 (define top-level-eval
 	(lambda (form)
     ; later we may add things that are not expressions.
-		(eval-exp form init-env)))
+		(eval-exp form (empty-env))))
 
 ;;; The eval-exp is the main component of the interpreter
 ;; @param exp: expression dataype; env: envirionment datatype
@@ -23,9 +23,12 @@
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
 															 (lambda (x) x) ; procedure to call if id is in the environment 
-															 (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
-																											"variable not found in environment: ~s"
-																											id)))]
+															 (lambda ()
+                                 (apply-env-ref init-env id
+                                       (lambda (x) x)
+                                       (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
+                                                              "variable not found in environment: ~s"
+                                                              id)))))]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -68,11 +71,18 @@
                                    (apply-proc consumer args))]
 
            [set-exp (var body)
-                    (apply-env-ref env var
-                                   (lambda (refer)
-                                     (set-ref! refer (eval-exp body env)))
-                                   (lambda ()
-                                     (eopl:error 'set-exp "apply-env-ref failed")))]
+                    (let ([body-val (eval-exp body env)])
+                      (apply-env-ref env var
+                                     (lambda (refer)
+                                       (set-ref! refer body-val))
+                                     (lambda ()
+                                       (apply-env-ref init-env var
+                                                      (lambda (refer)
+                                                        (set-ref! refer body-val))
+                                                      (lambda () (eopl:error 'set! ; procedure to call if id not in env
+                                                                             "variable not found in environment: ~s"
+                                                                             var))))))]
+
 
            [define-exp (var exp)
              (set! init-env (extend-env (list var) (list (eval-exp exp init-env)) init-env))]
