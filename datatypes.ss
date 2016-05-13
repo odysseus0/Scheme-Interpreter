@@ -101,8 +101,7 @@
 
 (define-datatype proc-val proc-val?
 	[prim-proc (name symbol?)]
-	[closure (params list-implst-symbol?)
-           (ref-params (list-of symbol?))
+	[closure (params valid-params?)
 					 (bodies (list-of expression?))
 					 (env environment?)])
   ;[closure-lambda-var (param (list-of symbol?))

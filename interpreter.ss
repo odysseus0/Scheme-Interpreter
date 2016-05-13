@@ -50,8 +50,8 @@
            [if-then-exp (test-exp then-exp)
                         (if (eval-exp test-exp env)
                             (eval-exp then-exp env))]
-					 [lambda-exp (params ref-params bodies)
-											 (closure params ref-params bodies env)]
+					 [lambda-exp (params bodies)
+											 (closure params bodies env)]
            [while-exp (test bodies)
                       (letrec
                         ([helper
@@ -116,22 +116,48 @@
       (cons (car ls) (imp-helper (cdr imp-ls) (cdr ls)))
       (list ls))))
 
+; > (normalize-params '(a (ref x)))
+; (a x)
+(define normalize-params
+  (lambda (params)
+    (cond [(null? params) (list)]
+          [(ref? (car params)) (cons (cadr (car params)) (normalize-params (cdr params)))]
+          [else (cons (car params) (normalize-params (cdr params)))])))
+
+(define set-back
+  (lambda (params args old-env new-env)
+    (cond [(null? params)]
+          [(symbol? (car params)) (set-back (cdr params) (cdr args) old-env new-env)]
+          [else (begin (set-ref! (apply-env-ref old-env
+                                                (car args)
+                                                (lambda (x) x)
+                                                (lambda () (eopl:error 'set-back
+                                                                       "argument's ref not found: ~s"
+                                                                       (car args))))
+                                  (apply-env new-env
+                                             (cadr (car params))
+                                             (lambda (x) x)
+                                             (lambda () (eopl:error 'set-back
+                                                                    "variable not found"))))
+                       (set-back (cdr params) (cdr args) old-env new-env))])))
+
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
 	(lambda (proc-value args)
 		(cases proc-val proc-value
 					 [prim-proc (op) (apply-prim-proc op args)]
-					 [closure (params ref-params bodies env)
+					 [closure (params bodies env)
                     (cond
                      [(null? params)
                       (eval-bodies bodies env)]
 
                      [(list? params)
-                      (let ([extended-env (extend-env params
+                      (let ([extended-env (extend-env (normalize-params params)
                                                       args
                                                       env)])
-                        (eval-bodies bodies extended-env))]
+                        (begin (eval-bodies bodies extended-env)
+                               (set-back params args env extended-env)))]
                       ; improper list
                      [(pair? params)
                       (let ([extended-env (extend-env (improper-list->proper params)
