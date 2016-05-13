@@ -12,6 +12,27 @@
     (and (pair? datum)
          (not (list? datum)))))
 
+; (ref? '(ref a))
+(define ref?
+  (lambda (datum)
+    (and (pair? datum)
+         (eqv? (car datum) 'ref)
+         (symbol? (cadr datum)))))
+
+(define get-regular-formals
+  (lambda (datum)
+    (cond [(null? datum) (list)]
+          [(symbol? (car datum)) (cons (car datum) (get-regular-formals (cdr datum)))]
+          [else (get-regular-formals (cdr datum))])))
+
+; > (get-refs '(a (ref x) (ref y)))
+; (x y)
+(define get-ref-formals
+  (lambda (datum)
+    (cond [(null? datum) (list)]
+          [(ref? (car datum)) (cons (cadr (car datum)) (get-ref-formals (cdr datum)))]
+          [else (get-ref-formals (cdr datum))])))
+
 (define improper-list->proper
   (lambda (impLst)
     (if (atom? impLst)
@@ -38,7 +59,10 @@
 					(cond ([null? body] (eopl:error 'parse-exp "lambda expression missing body"))
                 ([symbol? formals] (lambda-exp formals (map parse-exp (cddr datum))))
                 ([list? formals]
-                 (if (andmap symbol? formals)
+                 (if (andmap (lambda (x)
+                               (or (symbol? x)
+                                   (ref? x)))
+                             formals)
                      (lambda-exp formals (map parse-exp (cddr datum)))
                      (eopl:error 'parse-exp "lambda argument list: formals must be symbols: ~s" formals)))
                 ([improper-list? formals]

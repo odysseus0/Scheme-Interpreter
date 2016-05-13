@@ -50,8 +50,8 @@
            [if-then-exp (test-exp then-exp)
                         (if (eval-exp test-exp env)
                             (eval-exp then-exp env))]
-					 [lambda-exp (params bodies)
-											 (closure params bodies env)]
+					 [lambda-exp (params ref-params bodies)
+											 (closure params ref-params bodies env)]
            [while-exp (test bodies)
                       (letrec
                         ([helper
@@ -122,7 +122,7 @@
 	(lambda (proc-value args)
 		(cases proc-val proc-value
 					 [prim-proc (op) (apply-prim-proc op args)]
-					 [closure (params bodies env)
+					 [closure (params ref-params bodies env)
                     (cond
                      [(null? params)
                       (eval-bodies bodies env)]

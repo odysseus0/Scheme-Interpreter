@@ -29,12 +29,20 @@
     (or ((list-of symbol?) x)
         ((improper-list-of symbol?) x))))
 
-(define list-implst-symbol?
+; > (valid-param? '(ref x))
+; #t
+; > (valid-param? 'a)
+; #t
+(define valid-param?
+  (lambda (datum)
+    (or (symbol? datum)
+        (ref? datum))))
+
+(define valid-params?
   (lambda (x)
     (or (symbol? x)
-        ((list-of symbol?) x)
-        ((improper-list-of symbol?) x))))
-
+        ((list-of valid-param?) x)
+        ((improper-list-of valid-param?) x))))
 
 ; Parsed expression datatypes
 
@@ -42,7 +50,7 @@
 	[lit-exp (id lit?)]
 	[form-exp (form form?)]
 	[var-exp (id symbol?)]
-	[lambda-exp (formals list-implst-symbol?) (bodies (list-of expression?))]
+	[lambda-exp (formals valid-params?) (bodies (list-of expression?))]
 	;[lambda-exp-variable (formals (list-of symbol?)) (bodies (list-of expression?))]
   ;[lambda-exp-improper (formals (list-of symbol?)) (bodies (list-of expression?))]
 	[if-then-exp (pred expression?) (then-exp expression?)]
@@ -94,6 +102,7 @@
 (define-datatype proc-val proc-val?
 	[prim-proc (name symbol?)]
 	[closure (params list-implst-symbol?)
+           (ref-params (list-of symbol?))
 					 (bodies (list-of expression?))
 					 (env environment?)])
   ;[closure-lambda-var (param (list-of symbol?))
