@@ -9,6 +9,17 @@
     ; later we may add things that are not expressions.
 		(eval-exp form (empty-env))))
 
+;;; params are the parameters in the closure datatype. It can be
+;; both symbol and references.
+;;; args here are unevaluated arguments. 
+(define eval-args
+  (lambda (params args env)
+    (cond [(null? params) (list)]
+          [(symbol? (car params)) (cons (eval-exp (car args) env)
+                                        (eval-args (cdr params) (cdr args) env))]
+          [else (cons (apply-env-ref env (car args) (lambda (x) x) (std-fail (car args)))
+                      (eval-args (cdr params) (cdr args) env))])))
+
 ;;; The eval-exp is the main component of the interpreter
 ;; @param exp: expression dataype; env: envirionment datatype
 ;; @return scheme-value, prim-proc
@@ -23,8 +34,7 @@
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
 															 (lambda (x) x) ; procedure to call if id is in the environment 
-                               (
-                                std-fail id))]
+                               (std-fail id))]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -35,10 +45,15 @@
 																										(eval-rands exps env)
 																										env)])
 											(eval-bodies bodies extended-env))]
+
 					 [app-exp (rator rands)
-										(let ([proc-value (eval-exp rator env)]
-													[args rands])
-											(apply-proc proc-value args env))]
+										(let ([proc-value (eval-exp rator env)])
+                      (cases proc-val proc-value
+                             [prim-proc (op) (apply-proc proc-value (eval-rands rands env))]
+                             [closure (params bodies env)
+                                      (apply-proc proc-value
+                                                  (eval-args params rands env))]))]
+
 					 [if-then-else-exp (test-exp then-exp else-exp)
 														 (if (eval-exp test-exp env)
 																 (eval-exp then-exp env)
@@ -138,43 +153,32 @@
                        (set-back (cdr params) (cdr args) old-env new-env))])))
 
 
-;;; params are the parameters in the closure datatype. It can be
-;; both symbol and references.
-;;; args here are unevaluated arguments. 
-(define eval-args
-  (lambda (params args env)
-    (cond [(null? params) (list)]
-          [(symbol? (car params)) (cons (eval-exp (car args) env)
-                                        (eval-args (cdr params) (cdr args) env))]
-          [else (cons (apply-env-ref env (car args) (lambda (x) x) (std-fail (car args)))
-                      (eval-args (cdr params) (cdr args) env))])))
-
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
-	(lambda (proc-value args old-env)
+	(lambda (proc-value args)
 		(cases proc-val proc-value
-					 [prim-proc (op) (apply-prim-proc op (eval-rands args old-env))]
+					 [prim-proc (op) (apply-prim-proc op args)]
 					 [closure (params bodies env)
                     (cond
                      [(null? params)
-                      (eval-bodies bodies old-env)]
+                      (eval-bodies bodies env)]
 
                      [(list? params)
                       (let ([extended-env (extend-env (normalize-params params)
-                                                      (eval-args params args old-env)
+                                                      args
                                                       env)])
                         (eval-bodies bodies extended-env))]
 
                       ; improper list
                      [(pair? params)
                       (let ([extended-env (extend-env (improper-list->proper params)
-                                                      (imp-helper params (eval-rands args old-env))
+                                                      (imp-helper params args)
                                                       env)])
                         (eval-bodies bodies extended-env))]
                      [(symbol? params)
                       (let ([extended-env (extend-env (list params)
-                                                      (list (eval-rands args old-env))
+                                                      (list args)
                                                       env)])
                         (eval-bodies bodies extended-env))]
                      [else (eopl:error 'apply-proc
