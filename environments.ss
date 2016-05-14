@@ -48,6 +48,14 @@
                                  ; if the var is or isn't found, respectively.
     (deref (apply-env-ref env sym succeed fail))))
 
+(define std-fail
+  (lambda ()
+    (apply-env-ref init-env id
+                   (lambda (x) x)
+                   (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
+                                          "variable not found in environment: ~s"
+                                          id)))))
+
 (define apply-env-ref
   (lambda (env sym succeed fail)
 		(cases environment env

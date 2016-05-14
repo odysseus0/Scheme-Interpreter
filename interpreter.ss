@@ -23,12 +23,8 @@
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
 															 (lambda (x) x) ; procedure to call if id is in the environment 
-															 (lambda ()
-                                 (apply-env-ref init-env id
-                                       (lambda (x) x)
-                                       (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
-                                                              "variable not found in environment: ~s"
-                                                              id)))))]
+
+                               std-fail)]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -141,6 +137,17 @@
                                                                     "variable not found"))))
                        (set-back (cdr params) (cdr args) old-env new-env))])))
 
+
+;;; params are the parameters in the closure datatype. It can be
+;; both symbol and references.
+;;; args here are unevaluated arguments. 
+(define eval-args
+  (lambda (params args env)
+    (cond [(null? params) (list)]
+          [(symbol? (car params)) (cons (eval-exp (car args) env)
+                                        (eval-args (cdr params) (cdr args) env))]
+          [else (cons (apply-env-ref env (car args) (lambda (x) x) std-fail))])))
+
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
@@ -158,6 +165,7 @@
                                                       env)])
                         (begin (eval-bodies bodies extended-env)
                                (set-back params args env extended-env)))]
+
                       ; improper list
                      [(pair? params)
                       (let ([extended-env (extend-env (improper-list->proper params)
