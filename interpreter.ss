@@ -17,7 +17,7 @@
     (cond [(null? params) (list)]
           [(symbol? (car params)) (cons (eval-exp (car args) env)
                                         (eval-args (cdr params) (cdr args) env))]
-          [else (cons (apply-env-ref env (car args) (lambda (x) x) (std-fail (car args)))
+          [else (cons (apply-env-ref env (cadr (car args)) (lambda (x) x) (std-fail (cadr (car args))))
                       (eval-args (cdr params) (cdr args) env))])))
 
 ;;; The eval-exp is the main component of the interpreter
