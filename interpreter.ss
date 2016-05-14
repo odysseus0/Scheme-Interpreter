@@ -23,7 +23,8 @@
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
 															 (lambda (x) x) ; procedure to call if id is in the environment 
-                               (std-fail id))]
+                               (
+                                std-fail id))]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -36,7 +37,7 @@
 											(eval-bodies bodies extended-env))]
 					 [app-exp (rator rands)
 										(let ([proc-value (eval-exp rator env)]
-													[args (eval-rands rands env)])
+													[args rands])
 											(apply-proc proc-value args))]
 					 [if-then-else-exp (test-exp then-exp else-exp)
 														 (if (eval-exp test-exp env)
