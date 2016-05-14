@@ -137,24 +137,6 @@
           [(ref? (car params)) (cons (cadr (car params)) (normalize-params (cdr params)))]
           [else (cons (car params) (normalize-params (cdr params)))])))
 
-(define set-back
-  (lambda (params args old-env new-env)
-    (cond [(null? params)]
-          [(symbol? (car params)) (set-back (cdr params) (cdr args) old-env new-env)]
-          [else (begin (set-ref! (apply-env-ref old-env
-                                                (car args)
-                                                (lambda (x) x)
-                                                (lambda () (eopl:error 'set-back
-                                                                       "argument's ref not found: ~s"
-                                                                       (car args))))
-                                  (apply-env new-env
-                                             (cadr (car params))
-                                             (lambda (x) x)
-                                             (lambda () (eopl:error 'set-back
-                                                                    "variable not found"))))
-                       (set-back (cdr params) (cdr args) old-env new-env))])))
-
-
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
