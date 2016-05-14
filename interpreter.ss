@@ -23,8 +23,7 @@
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
 															 (lambda (x) x) ; procedure to call if id is in the environment 
-
-                               std-fail)]
+                               (std-fail id))]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -146,7 +145,8 @@
     (cond [(null? params) (list)]
           [(symbol? (car params)) (cons (eval-exp (car args) env)
                                         (eval-args (cdr params) (cdr args) env))]
-          [else (cons (apply-env-ref env (car args) (lambda (x) x) std-fail))])))
+          [else (cons (apply-env-ref env (car args) (lambda (x) x) (std-fail (car args)))
+                      (eval-args (cdr params) (cdr args) env))])))
 
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value

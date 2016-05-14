@@ -49,12 +49,13 @@
     (deref (apply-env-ref env sym succeed fail))))
 
 (define std-fail
-  (lambda ()
-    (apply-env-ref init-env id
-                   (lambda (x) x)
-                   (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
-                                          "variable not found in environment: ~s"
-                                          id)))))
+  (lambda (id)
+    (lambda ()
+      (apply-env-ref init-env id
+                     (lambda (x) x)
+                     (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
+                                            "variable not found in environment: ~s"
+                                            id))))))
 
 (define apply-env-ref
   (lambda (env sym succeed fail)
