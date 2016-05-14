@@ -161,10 +161,10 @@
 
                      [(list? params)
                       (let ([extended-env (extend-env (normalize-params params)
-                                                      args
+                                                      (eval-args params args env)
                                                       env)])
-                        (begin (eval-bodies bodies extended-env)
-                               (set-back params args env extended-env)))]
+                        (eval-bodies bodies extended-env))]
+
 
                       ; improper list
                      [(pair? params)
