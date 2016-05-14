@@ -50,6 +50,10 @@
            [if-then-exp (test-exp then-exp)
                         (if (eval-exp test-exp env)
                             (eval-exp then-exp env))]
+
+           [begin-exp (bodies)
+                      (eval-bodies bodies env)]
+           
 					 [lambda-exp (params bodies)
 											 (closure params bodies env)]
            [while-exp (test bodies)
@@ -124,9 +128,6 @@
 					 [prim-proc (op) (apply-prim-proc op args)]
 					 [closure (params bodies env)
                     (cond
-                     [(null? params)
-                      (eval-bodies bodies env)]
-
                      [(list? params)
                       (let ([extended-env (extend-env params
                                                       args
@@ -294,7 +295,8 @@
                               (syntax-expand (let-exp (list (car vars)) (list (car exps))
                                                       (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
            [begin-exp (bodies)
-                      (app-exp (lambda-exp (list) (map syntax-expand bodies)) (list))]
+                      (begin-exp (map syntax-expand bodies))]
+
            [and-exp (exps)
                     (let ([exps (map syntax-expand exps)])
                       (cond [(null? exps) (lit-exp #t)]

@@ -37,6 +37,7 @@
 							[formals (2nd datum)])
 					(cond ([null? body] (eopl:error 'parse-exp "lambda expression missing body"))
                 ([symbol? formals] (lambda-exp formals (map parse-exp (cddr datum))))
+                ([null? formals] (begin-exp (map parse-exp (cddr datum))))
                 ([list? formals]
                  (if (andmap symbol? formals)
                      (lambda-exp formals (map parse-exp (cddr datum)))
