@@ -43,8 +43,6 @@
 	[form-exp (form form?)]
 	[var-exp (id symbol?)]
 	[lambda-exp (formals list-implst-symbol?) (bodies (list-of expression?))]
-	;[lambda-exp-variable (formals (list-of symbol?)) (bodies (list-of expression?))]
-  ;[lambda-exp-improper (formals (list-of symbol?)) (bodies (list-of expression?))]
 	[if-then-exp (pred expression?) (then-exp expression?)]
 	[if-then-else-exp (pred expression?) (then-exp expression?) (else-exp expression?)]
 	[let-exp (vars (list-of symbol?))
@@ -96,12 +94,6 @@
 	[closure (params list-implst-symbol?)
 					 (bodies (list-of expression?))
 					 (env environment?)])
-  ;[closure-lambda-var (param (list-of symbol?))
-  ;                    (bodies (list-of expression?))
-  ;                    (env environment?)]
-  ;[closure-lambda-improper (params (list-of symbol?))
-  ;                         (bodies (list-of expression?))
-  ;                         (env environment?)])
 
 (define-datatype reference reference?
   [refer (vals vector?) (index number?)])
@@ -117,19 +109,3 @@
     (cases reference ref
            (refer (vals index)
                   (vector-set! vals index val)))))
-
-(define cell
-  (lambda (value)
-    (box value)))
-
-(define cell?
-  (lambda (obj)
-    (box? obj)))
-
-(define cell-ref
-  (lambda (cell)
-    (unbox cell)))
-
-(define cell-set!
-  (lambda (cell value)
-    (set-box! cell value)))

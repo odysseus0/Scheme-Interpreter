@@ -183,12 +183,6 @@
            [lambda-exp (formals body)
                        `( lambda ,formals
                           ,@(map unparse-exp body))]
-           ;[lambda-exp-variable (formal body)
-           ;                     `( lambda ,formal
-           ;                        ,@(map unparse-exp body))]
-           ;[lambda-exp-improper (formals body)
-           ;                     `( lambda ,(proper-list->improper formals)
-           ;                        ,@(map unparse-exp body))]
            [if-then-exp (pred then-exp)
                         `( if ,(unparse-exp pred) ,(unparse-exp then-exp))]
            [if-then-else-exp (pred then-exp else-exp)
@@ -197,16 +191,12 @@
                     `( let ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
            [let*-exp (vars exps body)
                      `( let* ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
-           ;[letrec-exp (proc-names idss bodiess letrec-bodies)
-           ;            `( letrec ,(map (lambda (x y) (list x (unparse-exp y))) vars exps) ,@(map unparse-exp body))]
            [set-exp (var body)
                     `( set! ,var ,(unparse-exp body))]
            [and-exp (body)
                     `( and ,@(map unparse-exp body))]
            [or-exp (body)
                    `( or ,@(map unparse-exp body))]
-           ;[cond-exp (clauses)
-           ;[case-exp (expr clauses)
            [begin-exp (bodies)
                       `( begin ,@(map unparse-exp rest))]
            [app-exp (rator rand)

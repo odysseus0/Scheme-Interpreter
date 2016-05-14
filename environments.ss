@@ -29,20 +29,6 @@
 								 (+ 1 list-index-r)
 								 #f))))))
 
-(define cons-vector
-  (lambda (exp vec)
-    (list->vector (cons exp (vector->list vec)))))
-
-(define add-to-env
-  (lambda (sym val env)
-    (cases environment env
-           (extended-env-record (syms vals env)
-                                (begin (set-cdr! syms syms)
-                                       (set-cdr! vals vals)
-                                       (set-car! syms sym)
-                                       (set-car! vals val)))
-           (else env))))
-
 (define apply-env
 	(lambda (env sym succeed fail) ; succeed and fail are procedures applied
                                  ; if the var is or isn't found, respectively.
