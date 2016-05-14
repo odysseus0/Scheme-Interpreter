@@ -38,7 +38,7 @@
 					 [app-exp (rator rands)
 										(let ([proc-value (eval-exp rator env)]
 													[args rands])
-											(apply-proc proc-value args))]
+											(apply-proc proc-value args env))]
 					 [if-then-else-exp (test-exp then-exp else-exp)
 														 (if (eval-exp test-exp env)
 																 (eval-exp then-exp env)
@@ -152,29 +152,29 @@
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
-	(lambda (proc-value args)
+	(lambda (proc-value args old-env)
 		(cases proc-val proc-value
-					 [prim-proc (op) (apply-prim-proc op args)]
+					 [prim-proc (op) (apply-prim-proc op (eval-rands args old-env))]
 					 [closure (params bodies env)
                     (cond
                      [(null? params)
-                      (eval-bodies bodies env)]
+                      (eval-bodies bodies old-env)]
 
                      [(list? params)
                       (let ([extended-env (extend-env (normalize-params params)
-                                                      (eval-args params args env)
+                                                      (eval-args params args old-env)
                                                       env)])
                         (eval-bodies bodies extended-env))]
 
                       ; improper list
                      [(pair? params)
                       (let ([extended-env (extend-env (improper-list->proper params)
-                                                      (imp-helper params args)
+                                                      (imp-helper params (eval-rands args old-env))
                                                       env)])
                         (eval-bodies bodies extended-env))]
                      [(symbol? params)
                       (let ([extended-env (extend-env (list params)
-                                                      (list args)
+                                                      (list (eval-rands args old-env))
                                                       env)])
                         (eval-bodies bodies extended-env))]
                      [else (eopl:error 'apply-proc
