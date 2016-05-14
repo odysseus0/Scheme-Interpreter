@@ -50,9 +50,11 @@
 										(let ([proc-value (eval-exp rator env)])
                       (cases proc-val proc-value
                              [prim-proc (op) (apply-proc proc-value (eval-rands rands env))]
-                             [closure (params bodies env)
-                                      (apply-proc proc-value
-                                                  (eval-args params rands env))]))]
+                             [closure (params bodies new-env)
+                                      (if (list? params)
+                                          (apply-proc proc-value
+                                                      (eval-args params rands env))
+                                          (apply-proc proc-value (eval-rands rands env)))]))]
 
 					 [if-then-else-exp (test-exp then-exp else-exp)
 														 (if (eval-exp test-exp env)
