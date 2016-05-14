@@ -66,7 +66,7 @@
 																(let ((pos (list-find-position sym syms)))
 																	(if (number? pos)
                                       (succeed (let ([val (vector-ref vals pos)])
-                                                 (if (ref? val)
+                                                 (if (reference? val)
                                                      val
                                                      (refer vals pos))))
 																			(apply-env-ref env sym succeed fail))))
