@@ -165,7 +165,6 @@
                                                       env)])
                         (eval-bodies bodies extended-env))]
 
-
                       ; improper list
                      [(pair? params)
                       (let ([extended-env (extend-env (improper-list->proper params)

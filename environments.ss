@@ -64,7 +64,10 @@
 					 (extended-env-record (syms vals env)
 																(let ((pos (list-find-position sym syms)))
 																	(if (number? pos)
-                                      (succeed (refer vals pos))
+                                      (succeed (let ([val (vector-ref vals pos)])
+                                                 (if (ref? val)
+                                                     val
+                                                     (refer vals pos))))
 																			(apply-env-ref env sym succeed fail))))
            [recursively-extended-env-record
             (proc-names idss bodiess old-env)
