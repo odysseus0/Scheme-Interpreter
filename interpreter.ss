@@ -19,7 +19,11 @@
            [rator-k (rands env k)
                     (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
-                    (apply-proc proc-value val k)])))
+                    (apply-proc proc-value val k)]
+           [test-k (then-exp else-exp env k)
+                   (if val
+                       (eval-exp then-exp env k)
+                       (eval-exp else-exp env k))])))
 
 ;; eval-exp deals with the evaluation of special forms.
 ;; We leave the evaluation of procedures to eval-proc.
@@ -39,9 +43,14 @@
                                                               id)))))]
            [lambda-exp (params bodies)
 											 (apply-k k (closure params bodies env))]
+
            [app-exp (rator rands)
                     (eval-exp rator env
                               (rator-k rands env k))]
+
+           [if-then-else-exp (test-exp then-exp else-exp)
+                             (eval-exp test-exp env
+                                       (test-k then-exp else-exp env k))]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -53,10 +62,7 @@
 																										env)])
 											(eval-bodies bodies extended-env))]
 
-					 [if-then-else-exp (test-exp then-exp else-exp)
-														 (if (eval-exp test-exp env)
-																 (eval-exp then-exp env)
-																 (eval-exp else-exp env))]
+
            [if-then-exp (test-exp then-exp)
                         (if (eval-exp test-exp env)
                             (eval-exp then-exp env))]

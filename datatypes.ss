@@ -75,7 +75,8 @@
 (define-datatype continuation continuation?
   [init-k]
   [rator-k (rands (list-of expression?)) (env environment?) (k continuation?)]
-  [rands-k (proc-value proc-val) (k continuation)])
+  [rands-k (proc-value proc-val) (k continuation)]
+  [test-k (then-exp expression?) (else-exp expression?) (k continuation?)])
 
 
 ; Environment type definitions
