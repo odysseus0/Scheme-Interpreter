@@ -57,6 +57,20 @@
             (let ([vars (map car decls)]
                   [vals (map cadr decls)])
               (core-convert `((lambda ,vars ,@bodies) ,@vals)))]
+
+          [let* (decls . bodies)
+            (display (cdr decls))
+            (newline)
+            (display bodies)
+            (newline)]
+
+          [let** (decls . bodies)
+                 (if (null? decls)
+                     `(let () ,@bodies)
+                     (let ([new-decls `(,(car decls))]
+                           [new-bodies (core-convert `(let* ,(cdr decls) ,@bodies))])
+                       `(let ,new-decls ,new-bodies)))]
+
           [letrec (decls . bodies)
             (let ([vars (map car decls)]
                   [vals (map cadr decls)])

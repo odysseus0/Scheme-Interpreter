@@ -50,10 +50,8 @@
            [if-then-exp (test-exp then-exp)
                         (if (eval-exp test-exp env)
                             (eval-exp then-exp env))]
-
            [begin-exp (bodies)
                       (eval-bodies bodies env)]
-           
 					 [lambda-exp (params bodies)
 											 (closure params bodies env)]
            [while-exp (test bodies)
@@ -265,19 +263,7 @@
 (define syntax-expand
   (lambda (exp)
     (cases expression exp
-           [if-then-exp (pred then-exp)
-                        (let ([pred (syntax-expand pred)]
-                              [then-exp (syntax-expand then-exp)])
-                          (if-then-exp pred then-exp))]
-
-           [if-then-else-exp (pred then-exp else-exp)
-                             (let ([pred (syntax-expand pred)]
-                                   [then-exp (syntax-expand then-exp)]
-                                   [else-exp (syntax-expand else-exp)])
-                               (if-then-else-exp pred then-exp else-exp))]
-
            [let-exp (vars exps bodies)
-
                     (let ([bodies (map syntax-expand bodies)]
                           [exps (map syntax-expand exps)])
                       (app-exp (lambda-exp vars bodies) exps))]
@@ -290,9 +276,6 @@
                              [else 
                               (syntax-expand (let-exp (list (car vars)) (list (car exps))
                                                       (list (syntax-expand (let*-exp (cdr vars) (cdr exps) bodies)))))]))]
-           [begin-exp (bodies)
-                      (begin-exp (map syntax-expand bodies))]
-
            [and-exp (exps)
                     (let ([exps (map syntax-expand exps)])
                       (cond [(null? exps) (lit-exp #t)]
@@ -325,7 +308,6 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (cond-exp rest-clauses)))))]
-
            [case-exp (expr clauses)
                      (let* ([expr (syntax-expand expr)]
                             [keys (1st (1st clauses))]
@@ -341,14 +323,12 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (case-exp expr rest-clauses)))))]
-
            [while-exp (test bodies)
                       (while-exp (syntax-expand test) (map syntax-expand bodies))]
            [do1-exp (bodies test)
                     (syntax-expand (begin-exp (snoc bodies (while-exp test bodies))))]
            [do2-exp (bodies test)
                     (do2-exp (map syntax-expand bodies) (syntax-expand test))]
-
            [named-let-exp (name vars exps bodies)
                           (app-exp
                             (letrec-exp (list name)   ; proc-names
@@ -356,7 +336,6 @@
                                         (list (map syntax-expand bodies)) ; bodiess
                                         (list (var-exp name)))
                             exps)]
-
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (let ([bodiess (map (lambda (bodies) (map syntax-expand bodies)) bodiess)]
                              [letrec-bodies (map syntax-expand letrec-bodies)])
@@ -368,6 +347,18 @@
            [lambda-exp (formals bodies)
                        (lambda-exp formals (map syntax-expand bodies))]
 
+           [if-then-exp (pred then-exp)
+                        (let ([pred (syntax-expand pred)]
+                              [then-exp (syntax-expand then-exp)])
+                          (if-then-exp pred then-exp))]
+
+           [if-then-else-exp (pred then-exp else-exp)
+                             (let ([pred (syntax-expand pred)]
+                                   [then-exp (syntax-expand then-exp)]
+                                   [else-exp (syntax-expand else-exp)])
+                               (if-then-else-exp pred then-exp else-exp))]
+           [begin-exp (bodies)
+                      (begin-exp (map syntax-expand bodies))]
            [else exp])))
 
 (define rep ; "read-eval-print" loop.

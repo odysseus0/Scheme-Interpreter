@@ -301,11 +301,6 @@
 
 
 (define g test-graph-equal)
-	   
-	  
-     
-
-
 
 ;You can run the tests individually, or run them all
 ;#by loading this file (and your solution) and typing (r)
