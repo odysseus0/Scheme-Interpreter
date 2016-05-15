@@ -57,11 +57,7 @@
   [cond-exp (clauses (list-of clause?))]
   [case-exp (expr expression?) (clauses (list-of clause?))]
   [begin-exp (bodies (list-of expression?))]
-  [while-exp (test expression?) (bodies (list-of expression?))]
 	[app-exp (rator expression?) (rand (list-of expression?))]
-  [do1-exp (exps (list-of expression?)) (test-exp expression?)]
-  [do2-exp (exps (list-of expression?)) (test-exp expression?)]
-  [call-with-values-exp (producer expression?) (consumer expression?)]
   [letrec-exp (proc-names (list-of symbol?)) (idss (list-of list-implst-of-symbol?))
               (bodiess (list-of (list-of expression?))) (letrec-bodies (list-of expression?))]
   [named-let-exp (name symbol?)
@@ -77,7 +73,9 @@
   [rator-k (rands (list-of expression?)) (env environment?) (k continuation?)]
   [rands-k (proc-value proc-val) (k continuation)]
   [test-k (then-exp expression?) (else-exp expression?)
-          (env environment?) (k continuation?)])
+          (env environment?) (k continuation?)]
+  [test-k2 (then-exp expression?) (env environment?) (k continuation?)]
+  [extend-env-k (bodies (list-of expression?) (k continuation?))])
 
 
 ; Environment type definitions
@@ -115,7 +113,7 @@
                   (vector-ref vals index)))))
 
 (define set-ref!
-  (lambda (ref val)
+  (lambda (ref val k)
     (cases reference ref
            (refer (vals index)
-                  (vector-set! vals index val)))))
+                  (apply-k k (vector-set! vals index val))))))

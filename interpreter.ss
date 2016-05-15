@@ -23,7 +23,28 @@
            [test-k (then-exp else-exp env k)
                    (if val
                        (eval-exp then-exp env k)
-                       (eval-exp else-exp env k))])))
+                       (eval-exp else-exp env k))]
+           [test-k2 (then-exp env k)
+                    (if val
+                        (eval-exp then-exp env k))]
+           [extend-env-k (bodies k)
+                         (eval-bodies bodies val k)]
+           [define-k (init-env var k)
+             (extend-env (list var) (list val) init-env
+                         (define-extend-k init-env k))]
+           [define-extend-k (init-env k)
+             (apply-k k (set! init-env val))]
+           [set-body-k (env var k)
+                       (apply-env-ref env var
+                                      (lambda (refer)
+                                        (set-ref! refer body-val k))
+                                      (lambda ()
+                                        (apply-env-ref init-env var
+                                                       (lambda (refer)
+                                                         (set-ref! refer body-val k))
+                                                       (lambda ()
+                                                         (eopl:error 'set!
+                                                                     "variable not found in environment: ~s" var)))))])))
 
 ;; eval-exp deals with the evaluation of special forms.
 ;; We leave the evaluation of procedures to eval-proc.
@@ -57,47 +78,22 @@
                                     (extend-env-recursively proc-names idss bodiess env))]
 
 					 [let-exp (vars exps bodies)
-										(let ([extended-env (extend-env vars
-																										(eval-rands exps env)
-																										env)])
-											(eval-bodies bodies extended-env))]
-
+										(extend-env vars
+                                (eval-rands exps env)
+                                env
+                                (extend-env-k bodies k))]
 
            [if-then-exp (test-exp then-exp)
-                        (if (eval-exp test-exp env)
-                            (eval-exp then-exp env))]
-
-           [while-exp (test bodies)
-                      (letrec
-                        ([helper
-                           (lambda ()
-                             (if (eval-exp test env)
-                                 (begin (eval-bodies bodies env) (helper))))])
-                        (helper))]
-
-           [call-with-values-exp (producer consumer)
-                                 (let* ([producer (eval-exp producer env)]
-                                        [args (apply-proc producer (list))]
-                                        [consumer (eval-exp consumer env)])
-                                   (apply-proc consumer args))]
+                        (eval-exp test-exp env
+                                  (test-k2 then-exp env k))]
 
            [set-exp (var body)
-                    (let ([body-val (eval-exp body env)])
-                      (apply-env-ref env var
-                                     (lambda (refer)
-                                       (set-ref! refer body-val))
-                                     (lambda ()
-                                       (apply-env-ref init-env var
-                                                      (lambda (refer)
-                                                        (set-ref! refer body-val))
-                                                      (lambda () (eopl:error 'set! ; procedure to call if id not in env
-                                                                             "variable not found in environment: ~s"
-                                                                             var))))))]
-
+                    (eval-exp body env
+                              (set-body-k env var k))]
 
            [define-exp (var exp)
-             (set! init-env (extend-env (list var) (list (eval-exp exp init-env)) init-env))]
-
+             (eval-exp exp init-env
+                       (define-k init-env var k))]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
@@ -199,8 +195,6 @@
       [(append) (apply append args)]
       [(eqv?) (apply eqv? args)]
       [(list-tail) (apply list-tail args)]
-      [(values) args] ; package the values as a list
-      [(call-with-values) (apply-proc (cadr args) (apply-proc (car args) '()))]
 			[(+) (try '+ (apply + args))]
 			[(-) (apply - args)]
 			[(*) (apply * args)]
@@ -354,9 +348,6 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (case-exp expr rest-clauses)))))]
-
-           [while-exp (test bodies)
-                      (while-exp (syntax-expand test) (map syntax-expand bodies))]
 
            [named-let-exp (name vars exps bodies)
                           (app-exp
