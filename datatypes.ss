@@ -75,7 +75,10 @@
   [test-k (then-exp expression?) (else-exp expression?)
           (env environment?) (k continuation?)]
   [test-k2 (then-exp expression?) (env environment?) (k continuation?)]
-  [extend-env-k (bodies (list-of expression?) (k continuation?))])
+  [extend-env-k (bodies (list-of expression?)) (k continuation?)]
+  [define-k (init-env environment?) (var symbol?) (k continuation?)]
+  [define-extend-k (init-env environment?) (k continuation?)
+   ])
 
 
 ; Environment type definitions

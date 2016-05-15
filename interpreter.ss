@@ -97,11 +97,12 @@
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
-; Evaluate the list of operands, putting results into a list
+;;; Evaluate the list of operands, putting results into a list
+
 (define eval-rands
-	(lambda (rands env)
-		(map (lambda (x) (eval-exp x env))
-				 rands)))
+	(lambda (rands env k)
+		(apply-k k (map (lambda (x) (eval-exp x env))
+				 rands))))
 
 (define eval-bodies
 	(lambda (bodies env)
@@ -126,7 +127,7 @@
 ;;; proc-val: proc-value datatype
 ;;; @return scheme-value
 (define apply-proc
-	(lambda (proc-value args)
+	(lambda (proc-value args k)
 		(cases proc-val proc-value
 					 [prim-proc (op) (apply-prim-proc op args)]
 					 [closure (params bodies env)
