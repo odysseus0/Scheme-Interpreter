@@ -13,22 +13,35 @@
 ;; @param exp: expression dataype; env: envirionment datatype
 ;; @return scheme-value, prim-proc
 
+(define apply-k
+  (lambda (k val)
+    (cases continuation k
+           [rator-k (rands env k)
+                    (eval-rands rands env (rands-k val k))]
+           [rands-k (proc-value k)
+                    (apply-proc proc-value val k)])))
+
 ;; eval-exp deals with the evaluation of special forms.
 ;; We leave the evaluation of procedures to eval-proc.
-(define eval-exp
-	(lambda (exp env)
+(define eval-exp   ;cps-version with DS continuations
+	(lambda (exp env k)
 		(cases expression exp
-					 [lit-exp (datum) datum]
-					 [form-exp (datum) (2nd datum)]
+					 [lit-exp (datum) (apply-k k datum)]
+					 [form-exp (datum) (apply-k k (2nd datum))]
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
-															 (lambda (x) x) ; procedure to call if id is in the environment 
+															 k
 															 (lambda ()
                                  (apply-env-ref init-env id
-                                       (lambda (x) x)
+                                       k
                                        (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
                                                               "variable not found in environment: ~s"
                                                               id)))))]
+           [lambda-exp (params bodies)
+											 (apply-k k (closure params bodies env))]
+           [app-exp (rator rands)
+                    (eval-exp rator env
+                              (rator-k rands env k))]
 
            [letrec-exp (proc-names idss bodiess letrec-bodies)
                        (eval-bodies letrec-bodies
@@ -39,10 +52,7 @@
 																										(eval-rands exps env)
 																										env)])
 											(eval-bodies bodies extended-env))]
-					 [app-exp (rator rands)
-										(let ([proc-value (eval-exp rator env)]
-													[args (eval-rands rands env)])
-											(apply-proc proc-value args))]
+
 					 [if-then-else-exp (test-exp then-exp else-exp)
 														 (if (eval-exp test-exp env)
 																 (eval-exp then-exp env)
@@ -50,8 +60,7 @@
            [if-then-exp (test-exp then-exp)
                         (if (eval-exp test-exp env)
                             (eval-exp then-exp env))]
-					 [lambda-exp (params bodies)
-											 (closure params bodies env)]
+
            [while-exp (test bodies)
                       (letrec
                         ([helper
@@ -59,10 +68,6 @@
                              (if (eval-exp test env)
                                  (begin (eval-bodies bodies env) (helper))))])
                         (helper))]
-
-           [do2-exp (bodies test)
-                    (begin (eval-bodies bodies env)
-                           (eval-exp (while-exp test bodies) env))]
 
            [call-with-values-exp (producer consumer)
                                  (let* ([producer (eval-exp producer env)]
@@ -346,10 +351,6 @@
 
            [while-exp (test bodies)
                       (while-exp (syntax-expand test) (map syntax-expand bodies))]
-           [do1-exp (bodies test)
-                    (syntax-expand (begin-exp (snoc bodies (while-exp test bodies))))]
-           [do2-exp (bodies test)
-                    (do2-exp (map syntax-expand bodies) (syntax-expand test))]
 
            [named-let-exp (name vars exps bodies)
                           (app-exp

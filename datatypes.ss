@@ -70,6 +70,14 @@
                  (bodies (list-of expression?))]
   [define-exp (var symbol?) (exp expression?)])
 
+
+;;; Continuation type definitions
+(define-datatype continuation continuation?
+  [init-k]
+  [rator-k (rands (list-of expression?)) (env environment?) (k continuation?)]
+  [rands-k (proc-value proc-val) (k continuation)])
+
+
 ; Environment type definitions
 
 (define scheme-value?
