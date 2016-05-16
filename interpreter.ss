@@ -16,6 +16,8 @@
 (define apply-k
   (lambda (k val)
     (cases continuation k
+           [init-k ()
+                   (lambda (v) v)]
            [rator-k (rands env k)
                     (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
@@ -27,8 +29,6 @@
            [test-k2 (then-exp env k)
                     (if val
                         (eval-exp then-exp env k))]
-           [extend-env-k (bodies k)
-                         (eval-bodies bodies val k)]
            [define-k (init-env var k)
              (extend-env (list var) (list val) init-env
                          (define-extend-k init-env k))]
@@ -177,7 +177,8 @@
     (extend-env
       *prim-proc-names*
       (map prim-proc *prim-proc-names*)
-      (empty-env))))
+      (empty-env)
+      (init-k))))
 
 (define init-env
   (generate-init-env))
