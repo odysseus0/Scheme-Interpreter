@@ -43,8 +43,6 @@
 	[form-exp (form form?)]
 	[var-exp (id symbol?)]
 	[lambda-exp (formals list-implst-symbol?) (bodies (list-of expression?))]
-	;[lambda-exp-variable (formals (list-of symbol?)) (bodies (list-of expression?))]
-  ;[lambda-exp-improper (formals (list-of symbol?)) (bodies (list-of expression?))]
 	[if-then-exp (pred expression?) (then-exp expression?)]
 	[if-then-else-exp (pred expression?) (then-exp expression?) (else-exp expression?)]
 	[let-exp (vars (list-of symbol?))
@@ -61,9 +59,6 @@
   [begin-exp (bodies (list-of expression?))]
   [while-exp (test expression?) (bodies (list-of expression?))]
 	[app-exp (rator expression?) (rand (list-of expression?))]
-  [do1-exp (exps (list-of expression?)) (test-exp expression?)]
-  [do2-exp (exps (list-of expression?)) (test-exp expression?)]
-  [call-with-values-exp (producer expression?) (consumer expression?)]
   [letrec-exp (proc-names (list-of symbol?))
               (lambdas (list-of expression?))
               (letrec-bodies (list-of expression?))]
@@ -83,12 +78,7 @@
 	(extended-env-record
     (syms (list-of symbol?))
     (vals vector?)
-    (env environment?))
-  [recursively-extended-env-record
-   (proc-names (list-of symbol?))
-   (idss (list-of list-implst-of-symbol?))
-   (bodiess (list-of (list-of expression?)))
-   (env environment?)])
+    (env environment?)))
 
 ; Datatype for procedures.
 
@@ -97,12 +87,6 @@
 	[closure (params list-implst-symbol?)
 					 (bodies (list-of expression?))
 					 (env environment?)])
-  ;[closure-lambda-var (param (list-of symbol?))
-  ;                    (bodies (list-of expression?))
-  ;                    (env environment?)]
-  ;[closure-lambda-improper (params (list-of symbol?))
-  ;                         (bodies (list-of expression?))
-  ;                         (env environment?)])
 
 (define-datatype reference reference?
   [refer (vals vector?) (index number?)])

@@ -56,16 +56,6 @@
                                  (begin (eval-bodies bodies env) (helper))))])
                         (helper))]
 
-           [do2-exp (bodies test)
-                    (begin (eval-bodies bodies env)
-                           (eval-exp (while-exp test bodies) env))]
-
-           [call-with-values-exp (producer consumer)
-                                 (let* ([producer (eval-exp producer env)]
-                                        [args (apply-proc producer (list))]
-                                        [consumer (eval-exp consumer env)])
-                                   (apply-proc consumer args))]
-
            [set-exp (var body)
                     (let ([body-val (eval-exp body env)])
                       (apply-env-ref env var
@@ -342,10 +332,6 @@
 
            [while-exp (test bodies)
                       (while-exp (syntax-expand test) (map syntax-expand bodies))]
-           [do1-exp (bodies test)
-                    (syntax-expand (begin-exp (snoc bodies (while-exp test bodies))))]
-           [do2-exp (bodies test)
-                    (do2-exp (map syntax-expand bodies) (syntax-expand test))]
 
            [named-let-exp (name vars exps bodies)
                           (app-exp
