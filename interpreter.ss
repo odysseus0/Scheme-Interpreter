@@ -7,7 +7,7 @@
 (define top-level-eval
 	(lambda (form)
     ; later we may add things that are not expressions.
-		(eval-exp form (empty-env))))
+		(eval-exp form (empty-env) (init-k))))
 
 ;;; The eval-exp is the main component of the interpreter
 ;; @param exp: expression dataype; env: envirionment datatype
@@ -17,7 +17,7 @@
   (lambda (k val)
     (cases continuation k
            [init-k ()
-                   (lambda (v) v)]
+                   val]
            [rator-k (rands env k)
                     (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
@@ -112,7 +112,6 @@
         (apply-k k '())
         (eval-exp (car rands) env
                   (eval-rands-car-k (cdr rands) env k)))))
-
 
 (define eval-bodies
 	(lambda (bodies env k)
