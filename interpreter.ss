@@ -358,8 +358,8 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (case-exp expr rest-clauses)))))]
-           [while-exp (test bodies)
-                      (while-exp (syntax-expand test) (map syntax-expand bodies))]
+           ;[while-exp (test bodies)
+           ;           (while-exp (syntax-expand test) (map syntax-expand bodies))]
 
            [named-let-exp (name vars exps bodies)
                           (app-exp
