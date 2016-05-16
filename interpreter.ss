@@ -86,13 +86,13 @@
                         (eval-exp test-exp env
                                   (test-k2 then-exp env k))]
 
-           [while-exp (test bodies)
-                      (letrec
-                        ([helper
-                           (lambda ()
-                             (if (eval-exp test env)
-                                 (begin (eval-bodies bodies env) (helper))))])
-                        (helper))]
+           ;[while-exp (test bodies)
+           ;           (letrec
+           ;             ([helper
+           ;                (lambda ()
+           ;                  (if (eval-exp test env)
+           ;                      (begin (eval-bodies bodies env) (helper))))])
+           ;             (helper))]
 
            [set-exp (var body)
                     (eval-exp body env
@@ -111,7 +111,7 @@
     (if (null? rands)
         (apply-k k '())
         (eval-exp (car rands) env
-                  (eval-rands-car-k (cdr rands) env k))))
+                  (eval-rands-car-k (cdr rands) env k)))))
 
 
 (define eval-bodies
