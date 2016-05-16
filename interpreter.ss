@@ -34,6 +34,8 @@
                          (define-extend-k init-env k))]
            [define-extend-k (init-env k)
              (apply-k k (set! init-env val))]
+           [eval-bodies-k (bodies env k)
+                          (eval-bodies bodies env k)]
            [set-body-k (env var k)
                        (apply-env-ref env var
                                       (lambda (refer)
@@ -101,17 +103,16 @@
 
 (define eval-rands
 	(lambda (rands env k)
-		(apply-k k (map (lambda (x) (eval-exp x env))
-				 rands))))
+    (eval-exp (car rands) env
+              (map-car-k (cdr rands) env k))))
 
 (define eval-bodies
-	(lambda (bodies env)
+	(lambda (bodies env k)
 		(let loop ([bodies bodies])
 			(if (null? (cdr bodies))
-					(eval-exp (car bodies) env)
-					(begin
-						(eval-exp (car bodies) env)
-						(loop (cdr bodies)))))))
+					(eval-exp (car bodies) env k)
+					(eval-exp (car bodies) env
+                    (eval-bodies-k (cdr bodies) env k))))))
 
 ;  Apply a procedure to its arguments.
 
@@ -129,11 +130,11 @@
 (define apply-proc
 	(lambda (proc-value args k)
 		(cases proc-val proc-value
-					 [prim-proc (op) (apply-prim-proc op args)]
+					 [prim-proc (op) (apply-k k (apply-prim-proc op args))]
 					 [closure (params bodies env)
                     (cond
                      [(null? params)
-                      (eval-bodies bodies env)]
+                      (eval-bodies bodies env k)]
 
                      [(list? params)
                       (let ([extended-env (extend-env params
