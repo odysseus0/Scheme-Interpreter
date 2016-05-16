@@ -36,6 +36,13 @@
              (apply-k k (set! init-env val))]
            [eval-bodies-k (bodies env k)
                           (eval-bodies bodies env k)]
+           [eval-rands-car-k (rands env k)
+                             (eval-rands (cdr rands) env
+                                         (eval-rands-cdr-k val k))]
+           [eval-rands-cdr-k (car-rands-val k)
+                             (apply-k (cons car-rands-val val))]
+           [extend-env-k (bodies k)
+                         (eval-bodies bodies val k)]
            [set-body-k (env var k)
                        (apply-env-ref env var
                                       (lambda (refer)
@@ -103,8 +110,11 @@
 
 (define eval-rands
 	(lambda (rands env k)
-    (eval-exp (car rands) env
-              (map-car-k (cdr rands) env k))))
+    (if (null? rands)
+        (apply-k k '())
+        (eval-exp (car rands) env
+                  (eval-rands-car-k (cdr rands) env k))))
+
 
 (define eval-bodies
 	(lambda (bodies env k)
@@ -137,21 +147,20 @@
                       (eval-bodies bodies env k)]
 
                      [(list? params)
-                      (let ([extended-env (extend-env params
-                                                      args
-                                                      env)])
-                        (eval-bodies bodies extended-env))]
+                      (extend-env params args env
+                                  (extend-env-k bodies k))]
+
                       ; improper list
                      [(pair? params)
                       (let ([extended-env (extend-env (improper-list->proper params)
                                                       (imp-helper params args)
                                                       env)])
-                        (eval-bodies bodies extended-env))]
+                        (eval-bodies bodies extended-env k))]
                      [(symbol? params)
                       (let ([extended-env (extend-env (list params)
                                                       (list args)
                                                       env)])
-                        (eval-bodies bodies extended-env))]
+                        (eval-bodies bodies extended-env k))]
                      [else (eopl:error 'apply-proc
                                        "Attempt to apply bad procedure: ~s"
                                        proc-value)])])))

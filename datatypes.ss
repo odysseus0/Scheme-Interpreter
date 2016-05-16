@@ -79,7 +79,10 @@
   [define-k (init-env environment?) (var symbol?) (k continuation?)]
   [define-extend-k (init-env environment?) (k continuation?)]
   [set-body-k (env environment?) (var symbol?) (k continuation?)]
-  [eval-bodies-k (bodies (list-of expression?)) (env environment?) (k continuation?)])
+  [eval-bodies-k (bodies (list-of expression?)) (env environment?) (k continuation?)]
+  [eval-rands-car-k (rands (list-of expression?)) (env environment?) (k continuation?)]
+  [eval-rands-cdr-k (car-rands-val scheme-value?) (k continuation?)]
+  [extend-env-k (bodies (list-of expression?)) (k continuaion?)])
 
 
 ; Environment type definitions
