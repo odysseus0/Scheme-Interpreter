@@ -26,8 +26,4 @@
 ))
 
 (define r run-all)
-(define (s)
-  (display 'a)
-	(display 'b)
-	(newline))
 
