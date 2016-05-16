@@ -147,6 +147,9 @@
        [(eqv? (1st datum) 'begin)
         (begin-exp (map parse-exp (cdr datum)))]
 
+       [(eqv? (1st datum) 'while)
+        (while-exp (parse-exp (2nd datum)) (map parse-exp (cddr datum)))]
+
        [(eqv? (1st datum) 'define)
         (define-exp (2nd datum) (parse-exp (3rd datum)))]
 

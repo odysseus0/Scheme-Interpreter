@@ -82,15 +82,17 @@
                              (eval-exp test-exp env
                                        (test-k then-exp else-exp env k))]
 
-					 [let-exp (vars exps bodies)
-										(extend-env vars
-                                (eval-rands exps env)
-                                env
-                                (extend-env-k bodies k))]
-
            [if-then-exp (test-exp then-exp)
                         (eval-exp test-exp env
                                   (test-k2 then-exp env k))]
+
+           [while-exp (test bodies)
+                      (letrec
+                        ([helper
+                           (lambda ()
+                             (if (eval-exp test env)
+                                 (begin (eval-bodies bodies env) (helper))))])
+                        (helper))]
 
            [set-exp (var body)
                     (eval-exp body env
@@ -355,6 +357,8 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (case-exp expr rest-clauses)))))]
+           [while-exp (test bodies)
+                      (while-exp (syntax-expand test) (map syntax-expand bodies))]
 
            [named-let-exp (name vars exps bodies)
                           (app-exp
