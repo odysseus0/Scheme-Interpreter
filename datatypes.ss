@@ -64,8 +64,9 @@
   [do1-exp (exps (list-of expression?)) (test-exp expression?)]
   [do2-exp (exps (list-of expression?)) (test-exp expression?)]
   [call-with-values-exp (producer expression?) (consumer expression?)]
-  [letrec-exp (proc-names (list-of symbol?)) (idss (list-of list-implst-of-symbol?))
-              (bodiess (list-of (list-of expression?))) (letrec-bodies (list-of expression?))]
+  [letrec-exp (proc-names (list-of symbol?))
+              (lambdas (list-of expression?))
+              (letrec-bodies (list-of expression?))]
   [named-let-exp (name symbol?)
                  (vars (list-of symbol?))
                  (exps (list-of expression?))

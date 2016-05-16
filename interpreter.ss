@@ -30,10 +30,6 @@
                                                               "variable not found in environment: ~s"
                                                               id)))))]
 
-           [letrec-exp (proc-names idss bodiess letrec-bodies)
-                       (eval-bodies letrec-bodies
-                                    (extend-env-recursively proc-names idss bodiess env))]
-
 					 [let-exp (vars exps bodies)
 										(let ([extended-env (extend-env vars
 																										(eval-rands exps env)
@@ -353,16 +349,32 @@
 
            [named-let-exp (name vars exps bodies)
                           (app-exp
-                            (letrec-exp (list name)   ; proc-names
-                                        (list vars)   ; idss
-                                        (list (map syntax-expand bodies)) ; bodiess
-                                        (list (var-exp name)))
-                            exps)]
+                            (syntax-expand
+                              (letrec-exp (list name)   ; proc-names
+                                          (list
+                                            (lambda-exp vars
+                                                        (map syntax-expand bodies))) ; bodiess
+                                          (list (var-exp name))))
+                              exps)]
 
-           [letrec-exp (proc-names idss bodiess letrec-bodies)
-                       (let ([bodiess (map (lambda (bodies) (map syntax-expand bodies)) bodiess)]
+           [letrec-exp (proc-names lambdas letrec-bodies)
+                       (let ([lambdas (map syntax-expand lambdas)]
                              [letrec-bodies (map syntax-expand letrec-bodies)])
-                         (letrec-exp proc-names idss bodiess letrec-bodies))]
+                         (letrec ([helper
+                                    (lambda (proc-names lambdas letrec-bodies)
+                                      (if (null? proc-names)
+                                          (list (let-exp '()
+                                                         '()
+                                                         letrec-bodies))
+                                          (cons (set-exp (car proc-names)
+                                                         (car lambdas))
+                                                (helper (cdr proc-names)
+                                                        (cdr lambdas)
+                                                        letrec-bodies))))])
+                           (syntax-expand
+                             (let-exp proc-names ; var
+                                      (map (lambda (x) (lit-exp #f)) proc-names) ; #f
+                                      (helper proc-names lambdas letrec-bodies)))))]
 
            [define-exp (var exp)
                        (define-exp var (syntax-expand exp))]
