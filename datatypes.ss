@@ -58,8 +58,9 @@
   [case-exp (expr expression?) (clauses (list-of clause?))]
   [begin-exp (bodies (list-of expression?))]
 	[app-exp (rator expression?) (rand (list-of expression?))]
-  [letrec-exp (proc-names (list-of symbol?)) (idss (list-of list-implst-of-symbol?))
-              (bodiess (list-of (list-of expression?))) (letrec-bodies (list-of expression?))]
+  [letrec-exp (proc-names (list-of symbol?))
+              (lambdas (list-of expression?))
+              (letrec-bodies (list-of expression?))]
   [named-let-exp (name symbol?)
                  (vars (list-of symbol?))
                  (exps (list-of expression?))

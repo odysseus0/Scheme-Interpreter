@@ -101,9 +101,7 @@
 			 [(eqv? (1st datum) 'letrec)
 				(let* ([decls (2nd datum)]
 							 [proc-names (map 1st decls)]
-               [lambdas (map 2nd decls)]
-               [idss (map 2nd lambdas)]
-               [bodiess (map (lambda (x) (map parse-exp (cddr x))) lambdas)]
+               [lambdas (map (lambda (x) (parse-exp (2nd x))) decls)]
                [letrec-bodies (map parse-exp (cddr datum))]
 							 [length2? (lambda (x) (equal? 2 (length x)))])
 					(cond ([< (length datum) 3] (eopl:error 'parse-exp
@@ -116,7 +114,7 @@
 																													 "letrec expression: decls: not all length 2: ~s" decls))
 								([not (andmap symbol? proc-names)] (eopl:error 'parse-exp
 																												 "decls: first members must be symbols: ~s" decls))
-								(else (letrec-exp proc-names idss bodiess letrec-bodies))))]
+								(else (letrec-exp proc-names lambdas letrec-bodies))))]
 
 			 [(eqv? (1st datum) 'set!)
 				(cond ([< (length datum) 3]
