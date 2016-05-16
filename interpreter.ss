@@ -40,7 +40,7 @@
                              (eval-rands (cdr rands) env
                                          (eval-rands-cdr-k val k))]
            [eval-rands-cdr-k (car-rands-val k)
-                             (apply-k (cons car-rands-val val))]
+                             (apply-k k (cons car-rands-val val))]
            [extend-env-k (bodies k)
                          (eval-bodies bodies val k)]
            [set-body-k (env var k)
