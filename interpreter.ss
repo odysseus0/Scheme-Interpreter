@@ -26,10 +26,9 @@
            [init-k ()
                    val]
            [rator-k (rands env k)
-                      (eval-rands rands env (rands-k val k))]
+                    (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
-                      (apply-proc proc-value val k)]
-
+                    (apply-proc proc-value val k)]
            [test-k (then-exp else-exp env k)
                    (if val
                        (eval-exp then-exp env k)
@@ -38,10 +37,12 @@
                     (if val
                         (eval-exp then-exp env k))]
            [define-k (init-env var k)
-             (extend-env (list var) (list val) init-env
-                         (define-extend-k init-env k))]
+                     (extend-env (list var)
+                                 (list val)
+                                 init-env
+                                 (define-extend-k init-env k))]
            [define-extend-k (init-env k)
-             (apply-k k (set! init-env val))]
+                            (apply-k k (set! init-env val))]
            [eval-bodies-k (bodies env k)
                           (eval-bodies bodies env k)]
            [eval-rands-car-k (cdr-rands env k)
@@ -54,11 +55,11 @@
            [set-body-k (env var k)
                        (apply-env-ref env var
                                       (lambda (refer)
-                                        (set-ref! refer body-val k))
+                                        (set-ref! refer val k))
                                       (lambda ()
                                         (apply-env-ref init-env var
                                                        (lambda (refer)
-                                                         (set-ref! refer body-val k))
+                                                         (set-ref! refer val k))
                                                        (lambda ()
                                                          (eopl:error 'set!
                                                                      "variable not found in environment: ~s" var)))))])))
