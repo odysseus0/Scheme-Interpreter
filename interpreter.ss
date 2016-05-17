@@ -64,13 +64,13 @@
 					 [form-exp (datum) (apply-k k (2nd datum))]
 					 [var-exp (id)
 										(apply-env env id ; look up its value.
-															 k
+															 (lambda (v) (apply-k k v))
 															 (lambda ()
                                  (apply-env-ref init-env id
-                                       k
-                                       (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
-                                                              "variable not found in environment: ~s"
-                                                              id)))))]
+                                                (lambda (v) (apply-k k v))
+                                                (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
+                                                                       "variable not found in environment: ~s"
+                                                                       id)))))]
            [lambda-exp (params bodies)
 											 (apply-k k (closure params bodies env))]
 
