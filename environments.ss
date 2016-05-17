@@ -26,7 +26,8 @@
 
 (define apply-env
 	(lambda (env sym succeed fail) ; succeed and fail are procedures applied
-                                 ; if the var is or isn't found, respectively.
+                                        ; if the var is or isn't found, respectively.
+
     (deref (apply-env-ref env sym succeed fail))))
 
 (define apply-env-ref

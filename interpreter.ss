@@ -13,15 +13,23 @@
 ;; @param exp: expression dataype; env: envirionment datatype
 ;; @return scheme-value, prim-proc
 
+(define (trace-all)
+  (trace eval-rands
+         apply-k
+         eval-exp
+         eval-bodies
+         apply-proc))
+
 (define apply-k
   (lambda (k val)
     (cases continuation k
            [init-k ()
                    val]
            [rator-k (rands env k)
-                    (eval-rands rands env (rands-k val k))]
+                      (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
-                    (apply-proc proc-value val k)]
+                      (apply-proc proc-value val k)]
+
            [test-k (then-exp else-exp env k)
                    (if val
                        (eval-exp then-exp env k)
@@ -36,8 +44,8 @@
              (apply-k k (set! init-env val))]
            [eval-bodies-k (bodies env k)
                           (eval-bodies bodies env k)]
-           [eval-rands-car-k (rands env k)
-                             (eval-rands (cdr rands) env
+           [eval-rands-car-k (cdr-rands env k)
+                             (eval-rands cdr-rands env
                                          (eval-rands-cdr-k val k))]
            [eval-rands-cdr-k (car-rands-val k)
                              (apply-k k (cons car-rands-val val))]
@@ -63,11 +71,11 @@
 					 [lit-exp (datum) (apply-k k datum)]
 					 [form-exp (datum) (apply-k k (2nd datum))]
 					 [var-exp (id)
-										(apply-env env id ; look up its value.
-															 (lambda (v) (apply-k k v))
+										(apply-env-ref env id ; look up its value.
+															 (lambda (v) (apply-k k (deref v)))
 															 (lambda ()
                                  (apply-env-ref init-env id
-                                                (lambda (v) (apply-k k v))
+                                                (lambda (v) (apply-k k (deref v)))
                                                 (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
                                                                        "variable not found in environment: ~s"
                                                                        id)))))]
@@ -107,11 +115,15 @@
 ;;; Evaluate the list of operands, putting results into a list
 
 (define eval-rands
-	(lambda (rands env k)
-    (if (null? rands)
-        (apply-k k '())
-        (eval-exp (car rands) env
-                  (eval-rands-car-k (cdr rands) env k)))))
+  (lambda (rands env k)
+    (apply-k k (map (lambda (exp) (eval-exp exp env (init-k))) rands))))
+
+;(define eval-rands
+;	(lambda (rands env k)
+;    (if (null? rands)
+;        (apply-k k '())
+;        (eval-exp (car rands) env
+;                  (eval-rands-car-k (cdr rands) env k)))))
 
 (define eval-bodies
 	(lambda (bodies env k)
