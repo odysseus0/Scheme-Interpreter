@@ -171,7 +171,9 @@
 
                      [else (eopl:error 'apply-proc
                                        "Attempt to apply bad procedure: ~s"
-                                       proc-value)])])))
+                                       proc-value)])]
+           [continuation-proc (k)
+                              (apply-k k (1st args))])))
 
 (define *prim-proc-names*
 	'(+ - * / add1 sub1 zero? not = < > <= >= cons car cdr
@@ -180,7 +182,7 @@
       list->vector list? pair? procedure? vector->list
       vector make-vector vector-ref vector? number? symbol?
       set-car! set-cdr! vector-set! display newline procedure?
-      apply map quotient memv values call-with-values list-tail eqv? append))
+      apply map quotient memv list-tail eqv? append call/cc apply-k))
 
 (define generate-init-env
   (lambda ()
@@ -213,6 +215,7 @@
 	(lambda (prim-proc args k)
     (apply-k k 
              (case prim-proc
+               [(call/cc) (apply-proc (1st args) `(,(continuation-proc k)) k)]
                [(append) (apply append args)]
                [(eqv?) (apply eqv? args)]
                [(list-tail) (apply list-tail args)]

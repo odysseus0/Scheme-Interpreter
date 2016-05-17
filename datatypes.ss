@@ -104,7 +104,8 @@
 	[prim-proc (name symbol?)]
 	[closure (params list-implst-symbol?)
 					 (bodies (list-of expression?))
-					 (env environment?)])
+					 (env environment?)]
+  [continuation-proc (k continuation?)])
 
 (define-datatype reference reference?
   [refer (vals vector?) (index number?)])
