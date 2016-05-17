@@ -160,15 +160,15 @@
 
                                         ; improper list
                      [(pair? params)
-                      (let ([extended-env (extend-env (improper-list->proper params)
-                                                      (imp-helper params args)
-                                                      env)])
-                        (eval-bodies bodies extended-env k))]
+                      (extend-env (improper-list->proper params)
+                                  (imp-helper params args)
+                                  env
+                                  (extend-env-k bodies k))]
+
                      [(symbol? params)
-                      (let ([extended-env (extend-env (list params)
-                                                      (list args)
-                                                      env)])
-                        (eval-bodies bodies extended-env k))]
+                      (extend-env (list params) (list args) env
+                                  (extend-env-k bodies k))]
+
                      [else (eopl:error 'apply-proc
                                        "Attempt to apply bad procedure: ~s"
                                        proc-value)])])))
