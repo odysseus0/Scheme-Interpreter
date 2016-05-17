@@ -24,7 +24,8 @@
   (lambda (k val)
     (cases continuation k
            [init-k ()
-                   val]
+                   (if (not (equal? val (void)))
+                       val)]
            [rator-k (rands env k)
                     (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
@@ -37,6 +38,8 @@
                     (if val
                         (eval-exp then-exp env k)
                         (apply-k k (void)))]
+           [extend-env-k (bodies k)
+                         (eval-bodies bodies val k)]
            [define-k (var k)
              (extend-env (list var)
                          (list val)
@@ -51,8 +54,6 @@
                                          (eval-rands-cdr-k val k))]
            [eval-rands-cdr-k (car-rands-val k)
                              (apply-k k (cons car-rands-val val))]
-           [extend-env-k (bodies k)
-                         (eval-bodies bodies val k)]
            [set-body-k (env var k)
                        (apply-env-ref env var
                                       (lambda (refer)
