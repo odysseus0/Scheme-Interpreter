@@ -35,7 +35,8 @@
                        (eval-exp else-exp env k))]
            [test-k2 (then-exp env k)
                     (if val
-                        (eval-exp then-exp env k))]
+                        (eval-exp then-exp env k)
+                        (apply-k k env))]
            [define-k (var k)
                      (extend-env (list var)
                                  (list val)
