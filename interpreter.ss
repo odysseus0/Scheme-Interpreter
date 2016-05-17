@@ -36,12 +36,12 @@
            [test-k2 (then-exp env k)
                     (if val
                         (eval-exp then-exp env k))]
-           [define-k (init-env var k)
+           [define-k (var k)
                      (extend-env (list var)
                                  (list val)
                                  init-env
-                                 (define-extend-k init-env k))]
-           [define-extend-k (init-env k)
+                                 (define-extend-k k))]
+           [define-extend-k (k)
                             (apply-k k (set! init-env val))]
            [eval-bodies-k (bodies env k)
                           (eval-bodies bodies env k)]
@@ -109,7 +109,7 @@
 
            [define-exp (var exp)
              (eval-exp exp init-env
-                       (define-k init-env var k))]
+                       (define-k var k))]
 
 					 [else (eopl:error 'eval-exp "Bad abstract syntax: ~a" exp)])))
 
