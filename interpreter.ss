@@ -119,14 +119,10 @@
 
 (define eval-rands
   (lambda (rands env k)
-    (apply-k k (map (lambda (exp) (eval-exp exp env (init-k))) rands))))
-
-                                        ;(define eval-rands
-                                        ;	(lambda (rands env k)
-                                        ;    (if (null? rands)
-                                        ;        (apply-k k '())
-                                        ;        (eval-exp (car rands) env
-                                        ;                  (eval-rands-car-k (cdr rands) env k)))))
+    (if (null? rands)
+        (apply-k k '())
+        (eval-exp (car rands) env
+                  (eval-rands-car-k (cdr rands) env k)))))
 
 (define eval-bodies
 	(lambda (bodies env k)
