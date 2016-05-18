@@ -18,7 +18,8 @@
          apply-k
          eval-exp
          eval-bodies
-         apply-proc))
+         apply-proc
+         apply-prim-proc))
 
 (define apply-k
   (lambda (k val)
@@ -27,7 +28,10 @@
                    (if (not (equal? val (void)))
                        val)]
            [rator-k (rands env k)
-                    (eval-rands rands env (rands-k val k))]
+                    (cases proc-val val
+                           [continuation-proc (k)
+                                              (eval-rands rands env (rands-k val (init-k)))]
+                           [else (eval-rands rands env (rands-k val k))])]
            [rands-k (proc-value k)
                     (apply-proc proc-value val k)]
            [test-k (then-exp else-exp env k)

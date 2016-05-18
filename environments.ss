@@ -7,6 +7,7 @@
 		(empty-env-record)))
 
 (define extend-env
+
 	(lambda (syms vals env k)
 		(apply-k k (extended-env-record syms (list->vector vals) env))))
 
