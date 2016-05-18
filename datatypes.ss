@@ -73,6 +73,8 @@
   [init-k]
   [rator-k (rands (list-of expression?)) (env environment?) (k continuation?)]
   [rands-k (proc-value proc-val?) (k continuation?)]
+  [map-cdr-k (proc-cps proc-val?) (car-ls scheme-value?) (k continuation?)]
+  [map-car-k (map-cdr list?) (k continuation?)]
   [test-k (then-exp expression?) (else-exp expression?)
           (env environment?) (k continuation?)]
   [test-k2 (then-exp expression?) (env environment?) (k continuation?)]

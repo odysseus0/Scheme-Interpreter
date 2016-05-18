@@ -31,6 +31,10 @@
                     (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
                     (apply-proc proc-value val k)]
+           [map-cdr-k (proc-cps car-ls k)
+                      (apply-proc proc-cps (list car-ls) (map-car-k val k))]
+           [map-car-k (map-cdr k)
+                      (apply-k k (cons val map-cdr))]
            [test-k (then-exp else-exp env k)
                    (if val
                        (eval-exp then-exp env k)
@@ -213,6 +217,14 @@
 			(lambda () proc))]))
 
                                         ; prim-proc: symbols, args: scheme-values
+(define map-cps
+  (lambda (proc-cps ls k)
+    (if (null? ls)
+        (apply-k k '())
+        (map-cps proc-cps
+                 (cdr ls)
+                 (map-cdr-k proc-cps (car ls) k)))))
+
 (define apply-prim-proc
 	(lambda (prim-proc args k)
     (if (equal? prim-proc 'call/cc)
@@ -253,7 +265,7 @@
                    [(list) (apply list args)]
                    [(null?) (null? (1st args))]
                    [(apply) (apply-proc (car args) (cadr args) k)]
-                   [(map) (map (lambda x (apply-proc (1st args) x k)) (2nd args))]
+                   [(map) (map-cps (1st args) (2nd args) k)]
                    [(memv) (memv (1st args) (2nd args))]
                                         ; (assq obj alist)
                    [(assq) (assq (1st args) (2nd args))]
