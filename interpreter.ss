@@ -28,10 +28,7 @@
                    (if (not (equal? val (void)))
                        val)]
            [rator-k (rands env k)
-                    (cases proc-val val
-                           [continuation-proc (k)
-                                              (eval-rands rands env (rands-k val (init-k)))]
-                           [else (eval-rands rands env (rands-k val k))])]
+                    (eval-rands rands env (rands-k val k))]
            [rands-k (proc-value k)
                     (apply-proc proc-value val k)]
            [test-k (then-exp else-exp env k)
@@ -55,6 +52,7 @@
                           (eval-bodies bodies env k)]
            [eval-rands-car-k (cdr-rands env k)
                              (eval-rands cdr-rands env
+
                                          (eval-rands-cdr-k val k))]
            [eval-rands-cdr-k (car-rands-val k)
                              (apply-k k (cons car-rands-val val))]
