@@ -287,6 +287,8 @@
 (define syntax-expand
   (lambda (exp)
     (cases expression exp
+           [app-exp (rator rands)
+                    (app-exp (syntax-expand rator) (map syntax-expand rands))]
            [if-then-exp (pred then-exp)
                         (let ([pred (syntax-expand pred)]
                               [then-exp (syntax-expand then-exp)])
