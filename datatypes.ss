@@ -58,7 +58,7 @@
   [case-exp (expr expression?) (clauses (list-of clause?))]
   [begin-exp (bodies (list-of expression?))]
   [while-exp (test expression?) (bodies (list-of expression?))]
-	[app-exp (rator expression?) (rand (list-of expression?))]
+	[app-exp (rator expression?) (rands (list-of expression?))]
   [letrec-exp (proc-names (list-of symbol?))
               (lambdas (list-of expression?))
               (letrec-bodies (list-of expression?))]
