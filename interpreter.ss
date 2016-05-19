@@ -227,8 +227,11 @@
 
 (define apply-prim-proc
 	(lambda (prim-proc args k)
-    (if (equal? prim-proc 'call/cc)
-        (apply-proc (1st args) `(,(continuation-proc k)) k)
+    (case prim-proc
+      [(call/cc) (apply-proc (1st args) (list (continuation-proc k)) k)]
+      [(apply) (apply-proc (car args) (cadr args) k)]
+      [(map) (map-cps (1st args) (2nd args) k)]
+      [else
         (apply-k k
                  (case prim-proc
                    [(append) (apply append args)]
@@ -264,8 +267,6 @@
                    [(cdddr) (cdddr (1st args))]
                    [(list) (apply list args)]
                    [(null?) (null? (1st args))]
-                   [(apply) (apply-proc (car args) (cadr args) k)]
-                   [(map) (map-cps (1st args) (2nd args) k)]
                    [(memv) (memv (1st args) (2nd args))]
                                         ; (assq obj alist)
                    [(assq) (assq (1st args) (2nd args))]
@@ -295,7 +296,7 @@
                    [(quotient) (quotient (1st args) (2nd args))]
                    [else (eopl:error 'apply-prim-proc
                                      "Bad primitive procedure name: ~s" 
-                                     prim-proc)])))))
+                                     prim-proc)]))])))
 
 ;;; Syntax Expansion on the abstract syntax tree
 
