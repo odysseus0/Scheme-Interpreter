@@ -10,6 +10,7 @@
     (load "interpreter.ss")))
 
 (load-all)
+(load-all)
 
 (define l load-all) ; Shortcut for load-all
 
