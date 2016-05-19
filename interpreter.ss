@@ -188,7 +188,7 @@
       list->vector list? pair? procedure? vector->list
       vector make-vector vector-ref vector? number? symbol?
       set-car! set-cdr! vector-set! display newline procedure?
-      apply map quotient memv list-tail eqv? append call/cc apply-k))
+      apply map quotient memv list-tail eqv? append call/cc apply-k exit-list))
 
 (define generate-init-env
   (lambda ()
@@ -231,6 +231,7 @@
       [(call/cc) (apply-proc (1st args) (list (continuation-proc k)) k)]
       [(apply) (apply-proc (car args) (cadr args) k)]
       [(map) (map-cps (1st args) (2nd args) k)]
+      [(exit-list) (apply list args)]
       [else
         (apply-k k
                  (case prim-proc
