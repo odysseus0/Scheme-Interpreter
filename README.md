@@ -15,6 +15,7 @@ A metacircular Scheme interpreter — Scheme code that interprets Scheme. Built 
 - `lambda`, `if`, `define`, `set!`
 - `let`, `let*`, `letrec`, named `let`
 - `and`, `or`, `cond`, `case`, `begin`
+- `quasiquote` with `unquote` and `unquote-splicing`
 
 **Syntax Expansion**
 Derived forms (`let`, `letrec`, `cond`, etc.) are expanded to core forms before evaluation — the classic technique from SICP.
@@ -60,15 +61,26 @@ chez --script main.ss  # or: chez, then (load "main.ss")
 ; => 120
 ```
 
+### Examples
+
+```scheme
+(load "examples.ss")
+(run-all-examples)
+```
+
+Includes Y combinator, Church numerals, and `amb` operator (non-deterministic choice via `call/cc`).
+
 ## Architecture
 
 ```
-main.ss          Entry point, loads modules
+main.ss             Entry point, loads modules
 ├── chez-init.ss    Chez Scheme compatibility layer (define-datatype, etc.)
 ├── datatypes.ss    AST nodes, continuations, closures, environments
 ├── parser.ss       S-expression → AST
 ├── environments.ss Lexical environments with mutable bindings
-└── interpreter.ss  CPS evaluator + syntax expansion + primitives
+├── interpreter.ss  CPS evaluator + syntax expansion + primitives
+├── examples.ss     Y combinator, Church numerals, amb operator
+└── tests.ss        Test suite
 ```
 
 ## Authors

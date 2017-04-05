@@ -65,7 +65,10 @@
                  (vars (list-of symbol?))
                  (exps (list-of expression?))
                  (bodies (list-of expression?))]
-  [define-exp (var symbol?) (exp expression?)])
+  [define-exp (var symbol?) (exp expression?)]
+  [quasiquote-exp (body scheme-value?)]
+  [unquote-exp (body expression?)]
+  [unquote-splice-exp (body expression?)])
 
 
 ;;; Continuation type definitions

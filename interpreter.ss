@@ -21,6 +21,20 @@
          apply-proc
          apply-prim-proc))
 
+;;; Extract context from continuation for error messages
+(define continuation-context
+  (lambda (k)
+    (cases continuation k
+      [init-k () "at top level"]
+      [rator-k (rands env k) "in function call"]
+      [rands-k (proc-value k) "evaluating arguments"]
+      [test-k (then-exp else-exp env k) "in if condition"]
+      [test-k2 (then-exp env k) "in if condition"]
+      [set-body-k (env var k) (string-append "in set! of " (symbol->string var))]
+      [extend-env-k (bodies k) "in let/lambda body"]
+      [define-k (var k) (string-append "in define of " (symbol->string var))]
+      [else "in expression"])))
+
 (define apply-k
   (lambda (k val)
     (cases continuation k
@@ -70,7 +84,8 @@
                                                          (set-ref! refer val k))
                                                        (lambda ()
                                                          (eopl:error 'set!
-                                                                     "variable not found in environment: ~s" var)))))])))
+                                                                     "Cannot set undefined variable ~s. Use define to create new bindings."
+                                                                     var)))))])))
 
 ;; eval-exp deals with the evaluation of special forms.
 ;; We leave the evaluation of procedures to eval-proc.
@@ -85,9 +100,9 @@
                                    (lambda ()
                                      (apply-env-ref init-env id
                                                     (lambda (v) (apply-k k (deref v)))
-                                                    (lambda () (eopl:error 'apply-env ; procedure to call if id not in env
-                                                                           "variable not found in environment: ~s"
-                                                                           id)))))]
+                                                    (lambda () (eopl:error 'eval-exp
+                                                                           "Undefined variable ~s (~a)"
+                                                                           id (continuation-context k))))))]
            [lambda-exp (params bodies)
 											 (apply-k k (closure params bodies env))]
 
@@ -102,14 +117,6 @@
            [if-then-exp (test-exp then-exp)
                         (eval-exp test-exp env
                                   (test-k2 then-exp env k))]
-
-                                        ;[while-exp (test bodies)
-                                        ;           (letrec
-                                        ;             ([helper
-                                        ;                (lambda ()
-                                        ;                  (if (eval-exp test env)
-                                        ;                      (begin (eval-bodies bodies env) (helper))))])
-                                        ;             (helper))]
 
            [set-exp (var body)
                     (eval-exp body env
@@ -381,8 +388,6 @@
                            (if-then-else-exp test
                                              bodies
                                              (syntax-expand (case-exp expr rest-clauses)))))]
-                                        ;[while-exp (test bodies)
-                                        ;           (while-exp (syntax-expand test) (map syntax-expand bodies))]
 
            [named-let-exp (name vars exps bodies)
                           (app-exp
@@ -419,7 +424,63 @@
            [lambda-exp (formals bodies)
                        (lambda-exp formals (map syntax-expand bodies))]
 
+           [quasiquote-exp (template)
+                           (expand-quasiquote template 0)]
+
+           [unquote-exp (body)
+                        (eopl:error 'syntax-expand "unquote outside quasiquote")]
+
+           [unquote-splice-exp (body)
+                               (eopl:error 'syntax-expand "unquote-splicing outside quasiquote")]
+
            [else exp])))
+
+;;; Expand quasiquote template into cons/list/append expressions
+;;; depth tracks nesting level for nested quasiquotes
+(define expand-quasiquote
+  (lambda (template depth)
+    (cond
+      ;; Atoms become quoted literals
+      [(not (pair? template))
+       (form-exp (list 'quote template))]
+
+      ;; unquote at depth 0: evaluate the expression
+      [(and (pair? template) (eqv? (car template) 'unquote))
+       (if (= depth 0)
+           (syntax-expand (parse-exp (cadr template)))
+           ;; Nested unquote: decrease depth, keep structure
+           (app-exp (var-exp 'list)
+                    (list (form-exp '(quote unquote))
+                          (expand-quasiquote (cadr template) (- depth 1)))))]
+
+      ;; unquote-splicing at depth 0 in non-list context is an error
+      [(and (pair? template) (eqv? (car template) 'unquote-splicing))
+       (if (= depth 0)
+           (eopl:error 'quasiquote "unquote-splicing in non-list context")
+           (app-exp (var-exp 'list)
+                    (list (form-exp '(quote unquote-splicing))
+                          (expand-quasiquote (cadr template) (- depth 1)))))]
+
+      ;; Nested quasiquote: increase depth
+      [(and (pair? template) (eqv? (car template) 'quasiquote))
+       (app-exp (var-exp 'list)
+                (list (form-exp '(quote quasiquote))
+                      (expand-quasiquote (cadr template) (+ depth 1))))]
+
+      ;; List with unquote-splicing in car position
+      [(and (pair? template)
+            (pair? (car template))
+            (eqv? (caar template) 'unquote-splicing)
+            (= depth 0))
+       (app-exp (var-exp 'append)
+                (list (syntax-expand (parse-exp (cadar template)))
+                      (expand-quasiquote (cdr template) depth)))]
+
+      ;; Regular pair: cons the expanded car and cdr
+      [else
+       (app-exp (var-exp 'cons)
+                (list (expand-quasiquote (car template) depth)
+                      (expand-quasiquote (cdr template) depth)))])))
 
 (define rep ; "read-eval-print" loop.
 	(lambda ()

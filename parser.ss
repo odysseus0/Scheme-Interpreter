@@ -32,6 +32,12 @@
 		 [(lit? datum) (lit-exp datum)]
 		 [(pair? datum)
 			(cond
+       [(eqv? (1st datum) 'quasiquote)
+        (quasiquote-exp (2nd datum))]
+       [(eqv? (1st datum) 'unquote)
+        (unquote-exp (parse-exp (2nd datum)))]
+       [(eqv? (1st datum) 'unquote-splicing)
+        (unquote-splice-exp (parse-exp (2nd datum)))]
 			 [(eqv? (1st datum) 'lambda)
 				(let ([body (cddr datum)]
 							[formals (2nd datum)])
@@ -146,9 +152,6 @@
 
        [(eqv? (1st datum) 'begin)
         (begin-exp (map parse-exp (cdr datum)))]
-
-       [(eqv? (1st datum) 'while)
-        (while-exp (parse-exp (2nd datum)) (map parse-exp (cddr datum)))]
 
        [(eqv? (1st datum) 'define)
         (define-exp (2nd datum) (parse-exp (3rd datum)))]
