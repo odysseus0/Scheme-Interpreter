@@ -1,3 +1,5 @@
+# Ignore all the zip files
 *.zip
 
+# Ignore all the test files
 A*.ss
