@@ -68,7 +68,7 @@ chez --script main.ss  # or: chez, then (load "main.ss")
 (run-all-examples)
 ```
 
-Includes Y combinator, Church numerals, and `amb` operator (non-deterministic choice via `call/cc`).
+Includes Y combinator and tail call optimization verification.
 
 ## Architecture
 
@@ -79,7 +79,7 @@ main.ss             Entry point, loads modules
 ├── parser.ss       S-expression → AST
 ├── environments.ss Lexical environments with mutable bindings
 ├── interpreter.ss  CPS evaluator + syntax expansion + primitives
-├── examples.ss     Y combinator, Church numerals, amb operator
+├── examples.ss     Y combinator, TCO verification
 └── tests.ss        Test suite
 ```
 
